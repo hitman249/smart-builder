@@ -58,6 +58,10 @@ export default class Step {
         return this.tizenPackage(value);
       case 'tizen.Run':
         return this.tizenRun(value);
+      case 'tizen.Stop':
+        return this.tizenStop(value);
+      case 'tizen.Inspect':
+        return this.tizenInspect(value);
       case 'tizen.Remove':
         return this.tizenRemove(value);
       case 'tizen.EmulatorStart':
@@ -164,6 +168,52 @@ export default class Step {
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'run', '-p', packageId, '-t', target
     ], cwd.cwd).wait();
+  }
+
+  private async tizenInspect(data: any): Promise<void> {
+    const cwd = this.app.getCwd(data);
+    const packageId: string = cwd.data[0];
+    const DEBUG_PORT: RegExp = new RegExp(/(port(.*):\s+\d+)/g);
+
+    const launchResult: string = await this.app.getCommand().exec([
+      `${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'debug', packageId
+    ], cwd.cwd);
+
+    console.log(launchResult);
+
+    const port: string = _.trim(launchResult.match(DEBUG_PORT)[0].split(':')[1]);
+
+    if (port) {
+      await Utils.sleep(3000);
+
+      try {
+        await this.app.getCommand().watch([
+          `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', '--remove', `tcp:${port}`
+        ], cwd.cwd).wait();
+      } catch (e) {}
+
+      await this.app.getCommand().watch([
+        `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', `tcp:${port}`, `tcp:${port}`
+      ], cwd.cwd).wait();
+
+      const doc: any = await this.app.getNetwork().getJSON(`http://localhost:${port}/json`);
+      const postfix: string = doc?.[0]?.['devtoolsFrontendUrl'];
+
+      console.log(`Debug URL:`);
+      console.log(`http://localhost:${port}${postfix}`);
+    } else {
+      console.log(`Failed to start the application in debugging mode.`);
+    }
+  }
+
+  private async tizenStop(data: any): Promise<void> {
+    const cwd = this.app.getCwd(data);
+    const packageId: string = cwd.data[0];
+
+    await this.app.getCommand().watch(
+      [`${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'was_kill', packageId],
+      cwd.cwd
+    ).wait();
   }
 
   private async tizenRemove(data: any): Promise<void> {

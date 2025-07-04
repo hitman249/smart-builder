@@ -9,6 +9,7 @@ import Step from "./parser/step";
 import Value from "./parser/value";
 import Task from "./parser/task";
 import FileSystem from "./fs/file-system";
+import Network from "./system/network";
 
 const BUILD_RULES_DIR: string = '.smart-builder';
 
@@ -20,6 +21,7 @@ export class App {
   private CONSOLE: Console;
   private FILE_SYSTEM: FileSystem;
   private FINDER: Finder;
+  private NETWORK: Network;
 
   public async init(): Promise<void> {
     this.COMMAND = new Command();
@@ -27,6 +29,7 @@ export class App {
     await this.FINDER.init();
     this.CONSOLE = new Console();
     this.FILE_SYSTEM = new FileSystem();
+    this.NETWORK = new Network();
     this.ENV = new Env(this.rootPath, this.CONSOLE.getField('envFile', '.env'));
     await this.ENV.init();
 
@@ -102,6 +105,10 @@ export class App {
 
   public getFileSystem(): FileSystem {
     return this.FILE_SYSTEM;
+  }
+
+  public getNetwork(): Network {
+    return this.NETWORK;
   }
 
   public getCwd(data: any): { data: any, cwd: string | undefined } {
