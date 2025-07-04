@@ -50,10 +50,6 @@ export default class Value {
     return this.data;
   }
 
-  public get rootPath(): string {
-    return this.app.getRootPath();
-  }
-
   private async enumArray(data: any): Promise<any[]> {
     const result: any[] = [];
 
@@ -76,7 +72,13 @@ export default class Value {
 
   private async fnGlob(data: any): Promise<string> {
     const items: string[] = await this.fs.glob(Array.isArray(data) ? data[0]: data);
-    return items ? items[0] || '' : '';
+    const path: string = items ? items[0] || '' : '';
+
+    if (path) {
+      return '/' !== path[0] ? `${this.app.getRootPath()}/${path}` : path;
+    }
+
+    return '';
   }
 
   private async fnGitFindBranch(data: any): Promise<string> {
