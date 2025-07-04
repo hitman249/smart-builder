@@ -2,6 +2,7 @@ import type {App} from "../app";
 import _ from "lodash";
 import Utils from "../helpers/utils";
 import type FileSystem from "../fs/file-system";
+import xml2js from 'xml2js';
 
 export default class Value {
   private readonly app: App;
@@ -39,6 +40,8 @@ export default class Value {
           return this.fnGlob(value);
         case 'fn.Sh':
           return this.fnSh(value);
+        case 'fn.Xml':
+          return this.fnXml(value);
       }
 
       return hydrateData;
@@ -107,6 +110,14 @@ export default class Value {
 
   private async fnSh(data: any): Promise<string> {
     return this.anyFn(data, []);
+  }
+
+  private async fnXml(data: any): Promise<string> {
+    const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const path: string[] = data[1];
+    const xml: any = await xml2js.parseStringPromise(await this.fs.fileGetContents(file));
+
+    return _.get(xml, path);
   }
 
   private async anyFn(cmd: any[], data: any): Promise<string> {
