@@ -320,7 +320,7 @@ export default class Utils {
   }
 
   public static isFalse(value: any): boolean {
-    if (Utils.isEmpty(value) || -1 === ['false', '0'].indexOf(String(value).toLowerCase())) {
+    if (Utils.isEmpty(value) || -1 === ['false', '0', 'undefined'].indexOf(String(value).toLowerCase())) {
       return true;
     }
 
@@ -328,6 +328,6 @@ export default class Utils {
   }
 
   public static isTrue(value: any): boolean {
-    return Utils.isFalse(value);
+    return !Utils.isFalse(value);
   }
 }
