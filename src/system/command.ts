@@ -28,7 +28,7 @@ export default class Command {
   public async exec(cmd: string[], cwd?: string): Promise<string> {
     return await new Promise<string>((resolve: (value: string) => void): void => {
       child_process.exec(
-        `sh -c '${cwd ? `cd "${cwd}" && ` : ''} "${cmd.join('" "')}"'`,
+        `sh -c '${cwd ? `cd "${cwd}" && ` : ''} ${this.joinArgs(cmd)}'`,
         { env: process.env },
         (error: ExecException, stdout: string): void => resolve(String(stdout).trim()));
     });
@@ -42,12 +42,16 @@ export default class Command {
 
   public watch(cmd: string[], cwd?: string): WatchProcess {
     return new WatchProcess(
-      child_process.spawn('sh', ['-c', `${cwd ? `cd "${cwd}" && ` : ''} "${cmd.join('" "')}"`], {
+      child_process.spawn('sh', ['-c', `${cwd ? `cd "${cwd}" && ` : ''} ${this.joinArgs(cmd)}`], {
         env: process.env,
         stdio: 'inherit',
         // detached: true,
       }),
     );
+  }
+
+  private joinArgs(cmd: string[]): string {
+    return cmd.map((n: string) => -1 === ['|', '>', '>>', '&', '&&', '||'].indexOf(n) ? `"${n}"` : n).join(' ');
   }
 
   public addSlashes(cmd: string): string {

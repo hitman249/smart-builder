@@ -26,7 +26,7 @@ export default class Value {
     if (Array.isArray(this.data)) {
       return this.enumArray(this.data);
     } else if ('object' === typeof this.data) {
-      const hydrateData: any = this.enumObject(this.data);
+      const hydrateData: any = await this.enumObject(this.data);
       const rule: string = Object.keys(hydrateData)[0];
       const value: any = hydrateData[rule];
 
@@ -40,6 +40,8 @@ export default class Value {
         case 'fn.Sh':
           return this.fnSh(value);
       }
+
+      return hydrateData;
     }
 
     return this.data;
@@ -76,7 +78,7 @@ export default class Value {
 
   private async fnGitFindBranch(data: any): Promise<string> {
     const cwd = this.app.getCwd(data);
-    const find: string = cwd.data;
+    const find: string = Array.isArray(cwd.data) ? cwd.data[0]: cwd.data;
 
     const branch: string[] = Utils.natsort(
       (await this.app.getCommand().exec(['git', 'branch', '-a'], cwd.cwd))
