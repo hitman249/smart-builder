@@ -1,0 +1,54 @@
+pull:
+  desc: 'WebOS pull changes'
+  steps:
+    - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Git: [ 'pull', cwd: 'webos-client' ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Git: [ 'pull', cwd: 'webos-client/jscore' ]
+
+gco:
+  desc: 'WebOS branch checkout'
+  steps:
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'fetch', '--all', cwd: 'webos-client' ]
+    - shell.Git: [ 'checkout', '-f', 'package.json', cwd: 'webos-client' ]
+    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: 'webos-client' ]
+    - shell.Git: [ 'checkout', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos-client' ] }, cwd: 'webos-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'New branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ '' ]
+
+    - shell.Npm: [ 'i', cwd: 'webos-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'fetch', '--all', cwd: 'webos-client/jscore' ]
+    - shell.Git: [ 'checkout', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos-client/jscore' ] }, cwd: 'webos-client/jscore' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'New branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Npm: [ 'i', cwd: 'webos-client/jscore' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+  required:
+    - SB_INPUT
+
+status:
+  desc: 'WebOS branch checkout'
+  steps:
+    - shell.Echo: [ 'BRANCH: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'status', cwd: 'webos-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'BRANCH JSCORE:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'status', cwd: 'webos-client/jscore' ]
+
+branch:
+  desc: 'WebOS branch checkout'
+  steps:
+    - shell.Echo: [ 'BRANCH: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ 'BRANCH JSCORE:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]

@@ -1,0 +1,52 @@
+default:
+  desc: 'Build'
+  steps:
+    - ':debug'
+
+debug:
+  desc: 'Tizen compile debug package'
+  steps:
+    - ':clean'
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - ':copy'
+  env:
+    APP_BUILD_TYPE: DEBUG
+    APP_CORE_COMMAND: compileDebug
+  required:
+    - APP_SERVER_URL
+
+release:
+  desc: 'Tizen compile release package'
+  steps:
+    - ':clean'
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - ':copy'
+  env:
+    APP_BUILD_TYPE: RELEASE
+    APP_CORE_COMMAND: compileRelease
+  required:
+    - APP_SERVER_URL
+
+clean:
+  autocomplete: false
+  desc: 'Tizen clean'
+  steps:
+    - shell.Clean: 'tizen-client/tizen/core'
+    - shell.Clean: 'tizen-client/tizen/lib'
+    - shell.Clean: 'tizen-client/tizen/src'
+    - shell.Clean: 'tizen-client/tizen/config.xml'
+    - shell.Clean: 'tizen-client/tizen/icon.png'
+    - shell.Clean: 'tizen-client/tizen/index.html'
+    - shell.Clean: 'tizen-client/tizen/SmartPlayer.wgt'
+
+
+copy:
+  autocomplete: false
+  desc: 'Tizen copy'
+  steps:
+    - shell.Copy: [ 'tizen-client/build/app', 'tizen-client/tizen' ]
+

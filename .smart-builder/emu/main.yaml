@@ -1,0 +1,57 @@
+webos_sig4:
+  desc: 'WebOS 4 Signage'
+  steps:
+    - ':kvm_off'
+    - vbox.Start: "LG webOS SIGNAGE Emulator 4.1.7"
+
+webos_sig4_resume:
+  desc: 'WebOS 4 Signage Resume'
+  steps:
+    - vbox.Resume: "LG webOS SIGNAGE Emulator 4.1.7"
+
+webos_sig4_pause:
+  desc: 'WebOS 4 Signage Pause'
+  steps:
+    - vbox.Pause: "LG webOS SIGNAGE Emulator 4.1.7"
+
+chrome65:
+  desc: 'Ubuntu 14.04'
+  steps:
+    - ':kvm_off'
+    - vbox.Start: "Ubuntu 14.04"
+
+chrome65_resume:
+  desc: 'Ubuntu 14.04 Resume'
+  steps:
+    - vbox.Resume: "Ubuntu 14.04"
+
+chrome65_pause:
+  desc: 'Ubuntu 14.04 Pause'
+  steps:
+    - vbox.Pause: "Ubuntu 14.04"
+
+tizen6:
+  desc: 'Tizen 6'
+  steps:
+    - ':kvm_on'
+    - tizen.Start: [ 'tizen-6.0', 't-0625-1' ]
+
+tizen9:
+  desc: 'Tizen 9'
+  steps:
+    - ':kvm_on'
+    - tizen.Start: [ 'tizen-9.0', 't-0625-2' ]
+
+kvm_on:
+  autocomplete: false
+  desc: 'KVM On'
+  steps:
+    - shell.Sh: [ 'sudo', 'modprobe', 'kvm' ]
+    - shell.Sh: [ 'sudo', 'modprobe', 'kvm_amd' ]
+
+kvm_off:
+  autocomplete: false
+  desc: 'KVM Off'
+  steps:
+    - shell.Sh: [ 'sudo', 'modprobe', '-r', 'kvm_amd' ]
+    - shell.Sh: [ 'sudo', 'modprobe', '-r', 'kvm' ]

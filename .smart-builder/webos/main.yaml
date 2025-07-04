@@ -1,0 +1,26 @@
+install:
+  desc: 'WebOS install package'
+  steps:
+    - ares.Install: [ '--device', 'env.SB_INPUT?:emulator', { fn.Glob: 'webos-client/build/app/*.ipk' } ]
+    - ':run'
+
+inspect:
+  desc: 'WebOS inspect application'
+  steps:
+    - ares.Inspect: [ '--device', 'env.SB_INPUT?:emulator', '--app', 'com.lg.app.signage' ]
+#    - ares.Inspect: [ '--device', 'env.SB_INPUT?:emulator', '--app', 'com.lg.app.signage', '--open' ]
+
+run:
+  desc: 'WebOS launch application'
+  steps:
+    - ares.Launch: [ '--device', 'env.SB_INPUT?:emulator', 'com.lg.app.signage' ]
+
+stop:
+  desc: 'WebOS launch application'
+  steps:
+    - ares.Launch: [ '--device', 'env.SB_INPUT?:emulator', '--close', 'com.lg.app.signage' ]
+
+remove:
+  desc: 'WebOS remove application'
+  steps:
+    - ares.Install: [ '--device', 'env.SB_INPUT?:emulator', '--remove', 'com.lg.app.signage' ]

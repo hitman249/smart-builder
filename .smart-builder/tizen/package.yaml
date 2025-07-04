@@ -1,0 +1,29 @@
+install:
+  desc: 'Tizen install package'
+  steps:
+    - ':package'
+    - tizen.Install: [ { fn.Glob: 'tizen-client/tizen/*.wgt' }, 'env.SB_INPUT?:t-0625-1', cwd: 'tizen-client/tizen' ]
+
+package:
+  autocomplete: false
+  desc: 'Tizen build package [cert]'
+  steps:
+#    - shell.Clean: { fn.Glob: [ 'tizen-client/tizen/*.wgt' ] }
+    - shell.Clean: 'tizen-client/tizen/author-signature.xml'
+    - shell.Clean: 'tizen-client/tizen/signature1.xml'
+    - shell.Clean: 'tizen-client/tizen/signature1.xml'
+    - tizen.Package: [ 'default', cwd: 'tizen-client/tizen' ]
+
+run:
+  desc: 'Tizen run application'
+  steps:
+    - tizen.Run:
+      - { fn.Xml: [ 'tizen-client/tizen/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+      - 'env.SB_INPUT?:t-0625-1'
+
+remove:
+  desc: 'Tizen remove application'
+  steps:
+    - tizen.Remove:
+      - { fn.Xml: [ 'tizen-client/tizen/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+      - 'env.SB_INPUT?:t-0625-1'

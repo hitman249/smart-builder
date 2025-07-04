@@ -1,0 +1,125 @@
+#!/usr/bin/env node
+
+import process from 'process';
+import {Env} from "./system/env";
+import Command from "./system/command";
+import Finder from "./parser/finder";
+import {Console} from "./system/console";
+import Step from "./parser/step";
+import Value from "./parser/value";
+import Task from "./parser/task";
+import FileSystem from "./fs/file-system";
+
+const BUILD_RULES_DIR: string = '.smart-builder';
+
+export class App {
+  private readonly rootPath: string = process.cwd();
+
+  private ENV: Env;
+  private COMMAND: Command;
+  private CONSOLE: Console;
+  private FILE_SYSTEM: FileSystem;
+  private FINDER: Finder;
+
+  public async init(): Promise<void> {
+    this.COMMAND = new Command();
+    this.FINDER = new Finder(`${this.rootPath}/${BUILD_RULES_DIR}`);
+    await this.FINDER.init();
+    this.CONSOLE = new Console();
+    this.FILE_SYSTEM = new FileSystem();
+    this.ENV = new Env(this.rootPath, this.CONSOLE.getField('envFile', '.env'));
+    await this.ENV.init();
+
+    const target: string = this.CONSOLE.getTarget();
+    const showList: boolean = this.CONSOLE.getField('list', false);
+
+    if (showList) {
+      for (const item of this.FINDER.getList()) {
+        console.log(item);
+      }
+
+      return;
+    }
+
+    await this.run(target);
+  }
+
+  public async run(target: string): Promise<void> {
+    const doc: any = this.FINDER.getDocsByTarget(target);
+
+    if (!doc) {
+      console.log(`Target "${target}" not found.`);
+
+      this.FINDER.getListTargetsBy(target).forEach((item: string, index: number) => {
+        if (0 === index) {
+          console.log('');
+        }
+
+        console.log(item);
+      });
+
+      return;
+    }
+
+    const task: Task = new Task(this, doc);
+    await task.init();
+
+    if (!task.checkEnvFieldsRequired()) {
+      console.log(`Task "${target}". Mandatory ENV variables not set.`);
+      return;
+    }
+
+    await task.run();
+  }
+
+  public getRootPath(): string {
+    return this.rootPath;
+  }
+
+  public createStep(value: any): Step {
+    return new Step(this, value);
+  }
+
+  public async hydrateData<T>(data: T): Promise<T> {
+    return await (new Value(this, data)).get() as Promise<T>;
+  }
+
+  public getEnv(): Env {
+    return this.ENV;
+  }
+
+  public getConsole(): Console {
+    return this.CONSOLE;
+  }
+
+  public getFinder(): Finder {
+    return this.FINDER;
+  }
+
+  public getCommand(): Command {
+    return this.COMMAND;
+  }
+
+  public getFileSystem(): FileSystem {
+    return this.FILE_SYSTEM;
+  }
+
+  public getCwd(data: any): { data: any, cwd: string | undefined } {
+    if (Array.isArray(data)) {
+      let last: any = data[data.length - 1];
+      let cwd: string = last?.cwd;
+
+      if (cwd) {
+        return { data: data.slice(0, -1), cwd: '/' === cwd[0] ? cwd :`${this.rootPath}/${cwd}`};
+      }
+    }
+    return { data: data, cwd: undefined };
+  }
+}
+
+declare global {
+  var $app: App;
+}
+
+global.$app = new App();
+global.$app.init();

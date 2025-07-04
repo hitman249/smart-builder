@@ -1,0 +1,54 @@
+pull:
+  desc: 'Tizen pull changes'
+  steps:
+    - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Git: [ 'pull', cwd: 'tizen-client' ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Git: [ 'pull', cwd: 'tizen-client/jscore' ]
+
+gco:
+  desc: 'Tizen branch checkout'
+  steps:
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client' ]
+    - shell.Git: [ 'checkout', '-f', 'package.json', cwd: 'tizen-client' ]
+    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: 'tizen-client' ]
+    - shell.Git: [ 'checkout', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'tizen-client' ] }, cwd: 'tizen-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'New branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ '' ]
+
+    - shell.Npm: [ 'i', cwd: 'tizen-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client/jscore' ]
+    - shell.Git: [ 'checkout', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'tizen-client/jscore' ] }, cwd: 'tizen-client/jscore' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'New branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Npm: [ 'i', cwd: 'tizen-client/jscore' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+  required:
+    - SB_INPUT
+
+status:
+  desc: 'Tizen branch checkout'
+  steps:
+    - shell.Echo: [ 'BRANCH: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'status', cwd: 'tizen-client' ]
+    - shell.Echo: [ '' ]
+    - shell.Echo: [ 'BRANCH JSCORE:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'status', cwd: 'tizen-client/jscore' ]
+
+branch:
+  desc: 'Tizen branch checkout'
+  steps:
+    - shell.Echo: [ 'BRANCH: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'BRANCH JSCORE:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]

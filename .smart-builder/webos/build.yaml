@@ -1,0 +1,28 @@
+default:
+  desc: 'Build'
+  steps:
+    - ':debug'
+
+debug:
+  desc: 'WebOS compile debug package'
+  steps:
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Gulp: [ 'buildWithCore', cwd: 'webos-client' ]
+  env:
+    APP_BUILD_TYPE: DEBUG
+    APP_CORE_COMMAND: compileDebug
+  required:
+    - APP_SERVER_URL
+
+release:
+  desc: 'WebOS compile release package'
+  steps:
+    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client' ] } ]
+    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos-client/jscore' ] } ]
+    - shell.Gulp: [ 'buildWithCore', cwd: 'webos-client' ]
+  env:
+    APP_BUILD_TYPE: RELEASE
+    APP_CORE_COMMAND: compileRelease
+  required:
+    - APP_SERVER_URL
