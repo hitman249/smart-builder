@@ -34,13 +34,13 @@ tizen6:
   desc: 'Tizen 6'
   steps:
     - ':kvm_on'
-    - tizen.Start: [ 'tizen-6.0', 't-0625-1' ]
+    - tizen.EmulatorStart: [ 'tizen-6.0', 't-0625-1' ]
 
 tizen9:
   desc: 'Tizen 9'
   steps:
     - ':kvm_on'
-    - tizen.Start: [ 'tizen-9.0', 't-0625-2' ]
+    - tizen.EmulatorStart: [ 'tizen-9.0', 't-0625-2' ]
 
 kvm_on:
   autocomplete: false

@@ -10,7 +10,6 @@ debug:
     - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
     - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
-    - ':copy'
   env:
     APP_BUILD_TYPE: DEBUG
     APP_CORE_COMMAND: compileDebug
@@ -24,7 +23,6 @@ release:
     - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
     - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
-    - ':copy'
   env:
     APP_BUILD_TYPE: RELEASE
     APP_CORE_COMMAND: compileRelease
