@@ -19,6 +19,7 @@
     "locutus": "^2.0.32",
     "lodash": "^4.17.21",
     "node-fetch": "^2.7.0",
+    "sharp": "0.32.6",
     "tree-kill": "^1.2.2",
     "typescript": "^5.8.3",
     "xml2js": "^0.6.2"

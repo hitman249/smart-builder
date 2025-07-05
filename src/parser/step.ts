@@ -3,6 +3,9 @@ import FileSystem from "../fs/file-system";
 import Utils from "../helpers/utils";
 import _ from "lodash";
 import process from "process";
+import Network from "../system/network";
+import sharp from "sharp";
+import type {ResizeOptions, Sharp} from "sharp";
 
 export default class Step {
   private readonly app: App;
@@ -38,6 +41,8 @@ export default class Step {
         return this.editXml(value);
       case 'edit.Text':
         return this.editText(value);
+      case 'edit.Replace':
+        return this.editReplace(value);
       case 'shell.Echo':
         return this.shellEcho(value);
       case 'shell.Npm':
@@ -86,6 +91,12 @@ export default class Step {
         return this.consoleLog(value);
       case 'console.Dir':
         return this.consoleDir(value);
+      case 'download.File':
+        return this.downloadFile(value);
+      case 'download.Png':
+        return this.downloadImage(value, false);
+      case 'download.Jpeg':
+        return this.downloadImage(value, true);
     }
   }
 
@@ -115,9 +126,23 @@ export default class Step {
   }
 
   private async editText(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
+    const hydrateData: string[] = await this.app.hydrateData(data);
     const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
     await this.fs.saveFile(file, hydrateData.slice(1).join('\n'));
+  }
+
+  private async editReplace(data: any): Promise<void> {
+    const hydrateData: any = await this.app.hydrateData(data);
+    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
+    const find: string = hydrateData[1];
+    const replace: string = hydrateData[2];
+
+    if (!await this.fs.exists(file)) {
+      return;
+    }
+
+    const plainText: string = await this.fs.readFile(file);
+    await this.fs.saveFile(file, plainText.split(find).join(replace));
   }
 
   private async shellEcho(data: any): Promise<void> {
@@ -312,6 +337,55 @@ export default class Step {
 
   private async consoleDir(data: any): Promise<void> {
     console.dir(..._.castArray(data));
+  }
+
+  private async downloadFile(data: any): Promise<void> {
+    const url: string = data[0];
+    const out: string = data[1];
+
+    if (!url) {
+      return Promise.reject(`Error download file from "${url}".`);
+    }
+
+    const network: Network = new Network();
+    await network.download(url, '/' === out[0] ? out : `${this.app.getRootPath()}/${out}`);
+  }
+
+  private async downloadImage(data: any, isJpeg: boolean = false): Promise<void> {
+    const fits: string[] = ['contain', 'cover', 'fill', 'inside', 'outside'];
+    const url: string = data[0];
+    const out: string = '/' === data[1][0] ? data[1] : `${this.app.getRootPath()}/${data[1]}`;
+    let fit: ResizeOptions['fit'];
+    let width: number;
+    let height: number;
+
+    if (data[2] && -1 === fits.indexOf(data[2])) {
+      fit = 'contain';
+      width = Utils.toInt(data[2]);
+      height = Utils.toInt(data[3]) ? Utils.toInt(data[3]) : width;
+    } else {
+      fit = data[2];
+      width = Utils.toInt(data[3]);
+      height = Utils.toInt(data[4]) ? Utils.toInt(data[4]) : width;
+    }
+
+    if (!url) {
+      return Promise.reject(`Error download file from "${url}".`);
+    }
+
+    const network: Network = new Network();
+    await network.download(url, out);
+
+    if (!width) {
+      return;
+    }
+
+    return new Promise((resolve: any, reject: any) => {
+      let resize: Sharp = sharp(out).resize({fit, width, height});
+
+      (isJpeg ? resize.jpeg() : resize.png())
+        .toFile(out, err => err ? reject(`Error resize image "${out}".`) : resolve());
+    });
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {

@@ -1,9 +1,8 @@
 ## Вступление
 
 **Smart Builder** - это скрипт автоматизации сборки, позволяющий иметь полноценную сборку проекта не только через 
-gitlab-ci.yaml, jenkins и т.д., но и позволяет делать полноценные продуктовые сборки с любого ПК разработчиков.
-
-И распространять среди всей команды дополнительные способы и возможности удобнее управлять проектом. 
+gitlab-ci.yaml, jenkins и т.д., но и позволяет делать полноценные продуктовые сборки с любого ПК разработчиков.  
+И добавляет разработчикам более удобное управление проектом и окружением проекта во время разработки. 
 
 ## Требования
  - Node.js >= 14
@@ -122,6 +121,7 @@ steps:
   - edit.Json: [ 'app.json', [ 'name' ], 'My Company' ]
   - edit.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], 'my.app.com' ]
   - edit.Yaml: [ 'app.yaml', [ 'name' ], 'My Company' ]
+  - edit.Replace: [ 'app.html', 'id="test"', 'id="new_id"' ]
   - edit.Text:
       - 'android/app/src/main/res/xml/network_security_config.xml'
       - "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -168,6 +168,9 @@ steps:
   - shell.Sh: [ 'sudo', 'modprobe', 'kvm' ]
   - console.Log: [ 'test' ]
   - console.Dir: [ 'test' ]
+  - download.File: [ 'https://site.com/archive.tar.gz', 'dist/archive.tar.gz' ]
+  - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'cover', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
+  - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'contain', '200', '100' ]
 
   # Примеры функциональных fn.* команд для вычисления значений 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
