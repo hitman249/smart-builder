@@ -221,7 +221,7 @@ export default class FileSystem {
     return this.fileGetContents(pathOrUrl, autoEncoding);
   }
 
-  public async saveFile(path: string, data: string): Promise<void> {
+  public async saveFile(path: string, data: string | Buffer): Promise<void> {
     return this.filePutContents(path, data);
   }
 

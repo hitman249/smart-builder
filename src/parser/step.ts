@@ -360,7 +360,7 @@ export default class Step {
     let height: number;
 
     if (data[2] && -1 === fits.indexOf(data[2])) {
-      fit = 'contain';
+      fit = 'inside';
       width = Utils.toInt(data[2]);
       height = Utils.toInt(data[3]) ? Utils.toInt(data[3]) : width;
     } else {
@@ -380,12 +380,14 @@ export default class Step {
       return;
     }
 
-    return new Promise((resolve: any, reject: any) => {
-      let resize: Sharp = sharp(out).resize({fit, width, height});
+    let resize: Sharp = sharp(out).resize({fit, width, height});
+    const buffer: Buffer = await (isJpeg ? resize.jpeg() : resize.png()).toBuffer();
 
-      (isJpeg ? resize.jpeg() : resize.png())
-        .toFile(out, err => err ? reject(`Error resize image "${out}".`) : resolve());
-    });
+    if (await this.fs.exists(out)) {
+      await this.fs.rm(out);
+    }
+
+    await this.fs.saveFile(out, buffer);
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {

@@ -7,6 +7,13 @@ import path from 'path';
 import process from 'process';
 import {Progress} from "../fs/file-system";
 
+const originalError: any = console.error;
+console.error = (message) => {
+  if (-1 === message.indexOf('NODE_TLS_REJECT_UNAUTHORIZED')) {
+    originalError(message);
+  }
+};
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 type KeyValue = {[key: string]: string};

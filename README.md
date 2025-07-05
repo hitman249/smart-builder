@@ -169,8 +169,8 @@ steps:
   - console.Log: [ 'test' ]
   - console.Dir: [ 'test' ]
   - download.File: [ 'https://site.com/archive.tar.gz', 'dist/archive.tar.gz' ]
-  - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'cover', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
-  - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'contain', '200', '100' ]
+  - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'inside', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
+  - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'inside', '200', '100' ]
 
   # Примеры функциональных fn.* команд для вычисления значений 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
