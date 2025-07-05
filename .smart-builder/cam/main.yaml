@@ -1,0 +1,25 @@
+1-fhd:
+  desc: 'View cam1'
+  steps:
+    - shell.Echo: [ env.SB_CAM_USERNAME ]
+    - shell.Sh: [ 'mpv', 'rtsp://${SB_CAM_USERNAME}:${SB_CAM_PASSWORD}@${SB_CAM_HOST}/Streaming/Channels/101' ]
+  required:
+    - SB_CAM_USERNAME
+    - SB_CAM_PASSWORD
+    - SB_CAM_HOST
+
+1:
+  desc: 'View cam1'
+  steps:
+    - shell.Sh: [ 'mpv', 'rtsp://${SB_CAM_USERNAME}:${SB_CAM_PASSWORD}@${SB_CAM_HOST}/Streaming/Channels/102' ]
+  required:
+    - SB_CAM_USERNAME
+    - SB_CAM_PASSWORD
+    - SB_CAM_HOST
+
+2:
+  desc: 'View cam2'
+  steps:
+    - shell.Sh: [ 'anydesk', env.SB_CAM2_ID ]
+  required:
+    - SB_CAM2_ID

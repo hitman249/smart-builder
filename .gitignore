@@ -1,5 +1,4 @@
 .idea
 node_modules
 dist
-.smart-builder/cams/main.yaml
-.smart-builder/sites/main.yaml
+.smart-builder/site
