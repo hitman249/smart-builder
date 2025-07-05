@@ -1,41 +1,57 @@
-## Вступление
+## Smart Builder
 
-**Smart Builder** - это скрипт автоматизации сборки, позволяющий иметь полноценную сборку проекта не только через 
-gitlab-ci.yaml, jenkins и т.д., но и позволяет делать полноценные продуктовые сборки с любого ПК разработчиков.  
-И добавляет разработчикам более удобное управление проектом и окружением проекта во время разработки. 
+This is a build automation script that allows you to have a full-fledged project build not only through gitlab-ci.yaml, 
+jenkins and other CI/CD.
+But it also adds more convenient project and environment management for developers during development.
 
-## Требования
+## Requirement
  - Node.js >= 14
 
-## Возможности
+## Usage
 
-- Поддержка системных ENV переменных, .env файла, загрузка по url или из файла.
-- Поддержка формата YAML в конфигурациях сборки.
-- Поддержка чтения и записи форматов JSON, XML, YAML.
-- Загрузка и изменение размера изображений.
-- Копирование, удаление, поиск файлов по маске, создание папок.
-- Запуск, остановка, пауза, восстановление эмуляторов Virtual Box (WebOS), Tizen.
-- Сборка, установка пакетов в эмуляторах Tizen, WebOS, отладка через инспектор DevTools.
+```text
+Usage: smart-builder [options] [target]
 
-## Установка
+Options:
+  -e, --env-file <file>  ENVFILE
+  -i, --input <value>    Set env variable: SB_INPUT
+  -L, --list             Helper from BASH autocomplete
+  -h, --help             display help for command
+```
 
-1) Шаг 1. Зайдите в директорию smart-builder и выполните
+## Features
+
+- Support for system ENV variables, .env file, URL download or from a file.
+- Configurations on yaml files.
+- Reading and changing JSON, XML, YAML files.
+- Loading and changing the size of PNG and JPEG images.
+- Copying, deleting, searching files by mask, creating folders, other.
+- Starting, stopping, pause, restoration of emulators Virtual Box (Webos), Tizen.
+- Assembly, installation of packages in emulators Tizen, Webos, debugging through the inspector Devtools.
+
+## Installation
+
+1) Go to the `smart-builder` directory and execute
+
 ```shell
 npm i -g ./
 npm run build
 ```
 
-2) После выполненного шага у вас появится команда
+2) After the step executed, you will have a console command
+
 ```shell
 smart-builder
 ```
 
-3) Добавление автокомплита
+3) Adding autocompletion
+
 ```shell
 sudo apt install bash-completion
 ```
 
-Добавьте в файл ~/.bashrc и ~/.zshrc
+Add ~/.bashrc and ~/.zshrc to the file
+
 ```shell
 _smart_builder_complete() {
     COMPREPLY=($(smart-builder -L))
@@ -43,9 +59,9 @@ _smart_builder_complete() {
 complete -F _smart_builder_complete smart-builder
 ```
 
-4) Выполните `source ~/.bashrc` или `source ~/.zshrc` в текущей консоли, чтобы обновить переменные.
+4) Run `source ~/.bashrc` or` source ~/.zshrc` in the current console to update variables.
 
-## Примеры команд
+## CLI example
 
 ```shell
 smart-builder -e .env webos:debug
@@ -54,7 +70,9 @@ smart-builder webos:install -i 192.168.1.222
 smart-builder webos                               # run "default" task
 ```
 
-## Структура файлов конфигураций
+## The structure of configuration files
+
+At the root of your project, create the directory `.smart-builder`.
 
 ```shell
 ./.smart-builder/${platform}/${group}.yaml
@@ -64,7 +82,7 @@ smart-builder webos                               # run "default" task
 ...
 ```
 
-## Форматы переменных
+## Variable formats
 
 ```yaml
 task:
@@ -75,24 +93,23 @@ task:
         - '1'
         - '0'
     DEBUG2: [ fn.If: [ env.TB_BUILD_DEBUG, '1', '0' ] ]
-    DEBUG3: 'env.SB_FORCE_HTTP?http:https'  # Значение http или https
-    DEBUG4: 'env.SB_INPUT?:1234'            # Значение из SB_INPUT либо 1234
+    DEBUG3: 'env.SB_FORCE_HTTP?http:https'  # http or https value
+    DEBUG4: 'env.SB_INPUT?:1234'            # Value from SB_INPUT or 1234
     DEBUG5: 'https://${SITE}/${API}'
 ```
 
-Все файлы внутри одной **платформы** при исполнении склеиваются в один.  
+All files within a single **platform** are merged into one file during execution.
+If a specific task is not specified via `:`, for example `smart-builder webos:inspect`, the platform will search 
+for a file named `main.yaml` and a task named `default` within it.  
 
-Если не указана конкретная задача через `:`, пример `smart-builder webos:inspect`, то в платформе будет искаться файл 
-с именем `main.yaml`, а в нём задача с именем `default`.  
+Tasks from neighboring platforms can be executed by explicitly referencing them, e.g., `steps: - 'middleware:env'`.
 
-Можно выполнять задачи из соседних платформ, указывая её, пример `steps: - 'middleware:env'`.
-
-Сборку всех платформ можно задать в `/.smart-builder/main/main.yaml` в задаче `default`, тогда она выполнится при 
-указании команды `smart-builder` без параметров или указания платформы.
+The build for all platforms can be configured in the `default` task within the `.smart-builder/main/main.yaml` file, 
+and it will execute when the smart-builder command is run without parameters or platform specifications
 
 ```yaml
 example:
-  autocomplete: false # нужно указывать если не нужно чтобы эта задача попадала в автокомплит консоли
+  autocomplete: false
   desc: 'Example task'
   hint:
     EXTERNAL_FIELD: 'FTP address'
@@ -109,7 +126,7 @@ example:
     - EXTERNAL_FIELD
 ```
 
-Список всех команд с примерами синтаксиса
+List of all operators with examples of syntax.
 
 ```yaml
 steps:
@@ -172,7 +189,7 @@ steps:
   - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'inside', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
   - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'inside', '200', '100' ]
 
-  # Примеры функциональных fn.* команд для вычисления значений 
+  # Examples of functional fn.* commands for calculating values 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
   - shell.Echo: [ 'Branch:', { fn.Sh: [ 'git', 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] }, cwd: 'webos' ]
   - shell.Echo: [ 'Branch:', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos' ] }, cwd: 'webos' ]
