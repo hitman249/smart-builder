@@ -5,6 +5,9 @@ import fs, {type WriteFileOptions, type Stats} from 'fs';
 import Utils from '../helpers/utils';
 import CopyDir, {CopyDirEvent, type Options} from './copy-dir';
 import CopyFile, {CopyFileEvent} from './copy-file';
+import Network from "../system/network";
+import xml2js from "xml2js";
+import jsyaml from "js-yaml";
 
 export type Progress = {
   success: boolean,
@@ -205,6 +208,45 @@ export default class FileSystem {
 
   public async glob(path: string, options: {} = {}): Promise<string[]> {
     return await glob(path, {dot: true, ...options});
+  }
+
+  public async readFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<string> {
+    const isUrl: boolean = 0 === pathOrUrl.indexOf('http:') || 0 === pathOrUrl.indexOf('https:');
+
+    if (isUrl) {
+      const network: Network = new Network();
+      return network.get(pathOrUrl);
+    }
+
+    return this.fileGetContents(pathOrUrl, autoEncoding);
+  }
+
+  public async saveFile(path: string, data: string): Promise<void> {
+    return this.filePutContents(path, data);
+  }
+
+  public async readJsonFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
+    return Utils.jsonDecode(await this.readFile(pathOrUrl, autoEncoding));
+  }
+
+  public async saveJsonFile(path: string, data: Object): Promise<void> {
+    return this.saveFile(path, Utils.jsonEncode(data));
+  }
+
+  public async readXmlFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
+    return await xml2js.parseStringPromise(await this.readFile(pathOrUrl, autoEncoding));
+  }
+
+  public async saveXmlFile(path: string, data: Object): Promise<void> {
+    return this.saveFile(path, (new xml2js.Builder()).buildObject(data));
+  }
+
+  public async readYamlFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
+    return jsyaml.load(await this.readFile(pathOrUrl, autoEncoding));
+  }
+
+  public async saveYamlFile(path: string, data: Object): Promise<void> {
+    return this.saveFile(path, jsyaml.dump(data));
   }
 
   public async fileGetContents(filepath: string, autoEncoding: boolean = false): Promise<string> {

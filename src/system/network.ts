@@ -1,7 +1,6 @@
 import Utils from '../helpers/utils';
 import _ from 'lodash';
 import * as cookieParser from 'cookie';
-import dns from 'dns';
 import fetch, {type RequestInit, type Response} from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
@@ -14,8 +13,16 @@ type KeyValue = {[key: string]: string};
 type KeyValueAny = {[key: string]: any};
 
 export default class Network {
-  private connected: boolean;
-  private blockedRegion: boolean;
+  private static instance: Network;
+
+  constructor() {
+    if (Network.instance) {
+      return Network.instance;
+    }
+
+    Network.instance = this;
+    return Network.instance;
+  }
 
   private readonly fileSettings: KeyValueAny = {
     flags: 'w',
@@ -32,19 +39,6 @@ export default class Network {
   };
 
   public async init(): Promise<any> {
-  }
-
-  public async isConnected(): Promise<void> {
-    return new Promise((resolve: () => void, reject: () => void) => {
-      if (undefined !== this.connected) {
-        return this.connected ? resolve() : reject();
-      }
-
-      dns.lookupService('8.8.8.8', 53, (err: NodeJS.ErrnoException) => {
-        this.connected = !err;
-        return this.connected ? resolve() : reject();
-      });
-    });
   }
 
   private cookieParse(cookie: string | string[]): KeyValue {
@@ -76,35 +70,15 @@ export default class Network {
   }
 
   public async get(url: string): Promise<string> {
-    return this.isConnected()
-      .then(() => fetch(url, this.options))
-      .then((response: Response) => response.text());
+    return fetch(url, this.options).then((response: Response) => response.text());
   }
 
   public async getJSON(url: string): Promise<any> {
-    return this.isConnected()
-      .then(() => fetch(url, this.options))
-      .then((response: Response) => response.json());
-  }
-
-  public async isBlockedRegion(): Promise<boolean> {
-    if (undefined !== this.blockedRegion) {
-      const ip: string = await this.get('https://ipinfo.io/ip');
-
-      if (!ip) {
-        this.blockedRegion = false;
-      } else {
-        const info: any = this.getJSON(`https://ipinfo.io/${ip}`);
-        this.blockedRegion = (info?.country || '').toLowerCase() === 'ru';
-      }
-    }
-
-    return this.blockedRegion;
+    return fetch(url, this.options).then((response: Response) => response.json());
   }
 
   public async download(url: string, filepath: string, progress?: (value: Progress) => void): Promise<void> {
-    return this.isConnected()
-      .then(() => fetch(url, this.options))
+    return fetch(url, this.options)
       .then((response: Response) => {
         const contentLength: number = Utils.toInt(response.headers.get('content-length'));
         let downloadedLength: number = 0;

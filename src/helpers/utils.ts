@@ -330,4 +330,8 @@ export default class Utils {
   public static isTrue(value: any): boolean {
     return !Utils.isFalse(value);
   }
+
+  public static first(data: any): any {
+    return Array.isArray(data) ? data[0] : data;
+  }
 }

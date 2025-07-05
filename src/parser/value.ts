@@ -42,6 +42,12 @@ export default class Value {
           return this.fnSh(value);
         case 'fn.Xml':
           return this.fnXml(value);
+        case 'fn.Json':
+          return this.fnJson(value);
+        case 'fn.Yaml':
+          return this.fnYaml(value);
+        case 'fn.If':
+          return this.fnIf(value);
       }
 
       return hydrateData;
@@ -117,9 +123,26 @@ export default class Value {
   private async fnXml(data: any): Promise<string> {
     const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
     const path: string[] = data[1];
-    const xml: any = await xml2js.parseStringPromise(await this.fs.fileGetContents(file));
 
-    return _.get(xml, path);
+    return _.get(await this.fs.readXmlFile(file), path);
+  }
+
+  private async fnJson(data: any): Promise<string> {
+    const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const path: string[] = data[1];
+
+    return _.get(await this.fs.readJsonFile(file), path);
+  }
+
+  private async fnYaml(data: any): Promise<string> {
+    const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const path: string[] = data[1];
+
+    return _.get(await this.fs.readYamlFile(file), path);
+  }
+
+  private async fnIf(data: any): Promise<string> {
+    return Utils.isTrue(data[0]) ? data[1] : data[2];
   }
 
   private async anyFn(cmd: any[], data: any): Promise<string> {

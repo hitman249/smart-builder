@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import process from 'process';
 import child_process from 'child_process';
 import type {ExecException} from 'child_process';
@@ -9,16 +8,11 @@ export default class Command {
   private declare locale: string;
 
   constructor() {
-    Command.instance = this;
-  }
-
-  public static create(): Command {
     if (Command.instance) {
       return Command.instance;
     }
 
-    Command.instance = new Command();
-
+    Command.instance = this;
     return Command.instance;
   }
 

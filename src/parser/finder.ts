@@ -1,7 +1,6 @@
 import Utils from "../helpers/utils";
 import _ from "lodash";
 import FileSystem from "../fs/file-system";
-import jsyaml from "js-yaml";
 
 type Doc = { doc: any, file: string };
 type Platforms = { [platform: string]: Doc[] };
@@ -121,9 +120,8 @@ export default class Finder {
     const files: string[] = await (await fs.directoryAnalysis(this.path)).getFiles();
 
     for await (const file of files) {
-      const doc: any = jsyaml.load(await fs.fileGetContentsByEncoding(file));
       const [platform, section]: string[] = (file.slice(prefixLength) || '').split('/');
-      this.appendPlatform(platform, section || platform, doc);
+      this.appendPlatform(platform, section || platform, await fs.readYamlFile(file));
     }
   }
 }

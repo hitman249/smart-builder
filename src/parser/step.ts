@@ -30,8 +30,12 @@ export default class Step {
     const value: any = hydrateData[rule];
 
     switch (rule) {
+      case 'load.Env':
+        return this.loadEnv(value);
       case 'edit.Json':
         return this.editJson(value);
+      case 'edit.Xml':
+        return this.editXml(value);
       case 'edit.Text':
         return this.editText(value);
       case 'shell.Echo':
@@ -78,7 +82,16 @@ export default class Step {
         return this.shellCopy(value);
       case 'shell.Mkdir':
         return this.shellMkdir(value);
+      case 'console.Log':
+        return this.consoleLog(value);
+      case 'console.Dir':
+        return this.consoleDir(value);
     }
+  }
+
+  private async loadEnv(data: any): Promise<void> {
+    const env: string = await this.fs.readJsonFile(Utils.first(data));
+    await this.app.getEnv().loadEnv(env);
   }
 
   private async editJson(data: any): Promise<void> {
@@ -87,18 +100,24 @@ export default class Step {
     const path: string = hydrateData[1];
     const value: string = hydrateData[2];
 
-    const json: any = Utils.jsonDecode(await this.fs.fileGetContentsByEncoding(file));
-    _.set(json, path, value);
+    const content: any = await this.fs.readJsonFile(file);
+    await this.fs.saveJsonFile(file, _.set(content, path, value));
+  }
 
-    await this.fs.filePutContents(file, Utils.jsonEncode(json));
+  private async editXml(data: any): Promise<void> {
+    const hydrateData: any = await this.app.hydrateData(data);
+    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
+    const path: string = hydrateData[1];
+    const value: string = hydrateData[2];
+
+    const content: any = await this.fs.readXmlFile(file);
+    await this.fs.saveXmlFile(file, _.set(content, path, value));
   }
 
   private async editText(data: any): Promise<void> {
     const hydrateData: any = await this.app.hydrateData(data);
     const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const text: string[] = hydrateData.slice(1);
-
-    await this.fs.filePutContents(file, text.join('\n'));
+    await this.fs.saveFile(file, hydrateData.slice(1).join('\n'));
   }
 
   private async shellEcho(data: any): Promise<void> {
@@ -123,7 +142,9 @@ export default class Step {
   }
 
   private async openUrl(data: any): Promise<void> {
-    await this.anyFn(['xdg-open'], data);
+    const cwd = this.app.getCwd(data);
+    const path: string = Utils.first(cwd.data);
+    await this.app.getCommand().watch(['xdg-open', path], cwd.cwd).wait();
   }
 
   private async aresInspect(data: any): Promise<void> {
@@ -255,9 +276,10 @@ export default class Step {
 
   private async shellClean(data: any): Promise<void> {
     const cwd = this.app.getCwd(data);
+    const path: string = Utils.first(cwd.data);
 
-    if (cwd.data && _.trim(this.rootPath, '/') !== _.trim(cwd.data, '/')) {
-      await this.fs.rm('/' === cwd.data[0] ? cwd.data : `${this.rootPath}/${cwd.data}`);
+    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/')) {
+      await this.fs.rm('/' === path[0] ? path : `${this.rootPath}/${path}`);
     }
   }
 
@@ -277,10 +299,19 @@ export default class Step {
 
   private async shellMkdir(data: any): Promise<void> {
     const cwd = this.app.getCwd(data);
+    const path: string = Utils.first(cwd.data);
 
-    if (cwd.data && _.trim(this.rootPath, '/') !== _.trim(cwd.data, '/') ) {
-      await this.fs.mkdir('/' === cwd.data[0] ? cwd.data : `${this.rootPath}/${cwd.data}`);
+    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/') ) {
+      await this.fs.mkdir('/' === path[0] ? path : `${this.rootPath}/${path}`);
     }
+  }
+
+  private async consoleLog(data: any): Promise<void> {
+    console.log(..._.castArray(data));
+  }
+
+  private async consoleDir(data: any): Promise<void> {
+    console.dir(..._.castArray(data));
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {

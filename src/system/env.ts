@@ -21,6 +21,10 @@ export class Env {
     }
   }
 
+  public async loadEnv(data: string): Promise<void> {
+    dotenv.parse(data);
+  }
+
   public async getEnv(): Promise<ProcessEnv> {
     return process.env;
   }
