@@ -98,7 +98,7 @@ task:
     DEBUG5: 'https://${SITE}/${API}'
 ```
 
-All files within a single **platform** are merged into one file during execution.
+All files within a single **platform** are merged into one file during execution.  
 If a specific task is not specified via `:`, for example `smart-builder webos:inspect`, the platform will search 
 for a file named `main.yaml` and a task named `default` within it.  
 
