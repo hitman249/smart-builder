@@ -39,6 +39,8 @@ export default class Step {
         return this.editJson(value);
       case 'edit.Xml':
         return this.editXml(value);
+      case 'edit.Yaml':
+        return this.editYaml(value);
       case 'edit.Text':
         return this.editText(value);
       case 'edit.Replace':
@@ -111,7 +113,7 @@ export default class Step {
     const path: string = hydrateData[1];
     const value: string = hydrateData[2];
 
-    const content: any = await this.fs.readJsonFile(file);
+    const content: any = (await this.fs.exists(file)) ? await this.fs.readJsonFile(file) : {};
     await this.fs.saveJsonFile(file, _.set(content, path, value));
   }
 
@@ -121,8 +123,18 @@ export default class Step {
     const path: string = hydrateData[1];
     const value: string = hydrateData[2];
 
-    const content: any = await this.fs.readXmlFile(file);
+    const content: any = (await this.fs.exists(file)) ? await this.fs.readXmlFile(file) : {};
     await this.fs.saveXmlFile(file, _.set(content, path, value));
+  }
+
+  private async editYaml(data: any): Promise<void> {
+    const hydrateData: any = await this.app.hydrateData(data);
+    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
+    const path: string = hydrateData[1];
+    const value: string = hydrateData[2];
+
+    const content: any = (await this.fs.exists(file)) ? await this.fs.readYamlFile(file) : {};
+    await this.fs.saveYamlFile(file, _.set(content, path, value));
   }
 
   private async editText(data: any): Promise<void> {
@@ -336,7 +348,7 @@ export default class Step {
   }
 
   private async consoleDir(data: any): Promise<void> {
-    console.dir(..._.castArray(data));
+    console.dir(..._.castArray(data), {depth: 5});
   }
 
   private async downloadFile(data: any): Promise<void> {

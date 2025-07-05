@@ -246,7 +246,13 @@ export default class FileSystem {
   }
 
   public async saveYamlFile(path: string, data: Object): Promise<void> {
-    return this.saveFile(path, jsyaml.dump(data));
+    return this.saveFile(path, jsyaml.dump(data, {
+      'styles': {
+        '!!null': 'empty',
+        '!!int': 'decimal',
+        '!!bool': 'lowercase',
+      },
+    }));
   }
 
   public async fileGetContents(filepath: string, autoEncoding: boolean = false): Promise<string> {
