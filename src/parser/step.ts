@@ -46,23 +46,25 @@ export default class Step {
       case 'edit.Replace':
         return this.editReplace(value);
       case 'shell.Echo':
-        return this.shellEcho(value);
+        return this.anyFn(['echo'], value);
       case 'shell.Npm':
-        return this.shellNpm(value);
+        return this.anyFn(['npm'], value);
+      case 'shell.Yarn':
+        return this.anyFn(['yarn'], value);
       case 'shell.Sh':
-        return this.shellSh(value);
+        return this.anyFn([], value);
       case 'shell.Gulp':
-        return this.shellGulp(value);
+        return this.anyFn(['npx', 'gulp'], value);
       case 'shell.Git':
-        return this.shellGit(value);
+        return this.anyFn(['git'], value);
       case 'open.Url':
         return this.openUrl(value);
       case 'ares.Inspect':
-        return this.aresInspect(value);
+        return this.anyFn(['ares-inspect'], value);
       case 'ares.Install':
-        return this.aresInstall(value);
+        return this.anyFn(['ares-install'], value);
       case 'ares.Launch':
-        return this.aresLaunch(value);
+        return this.anyFn(['ares-launch'], value);
       case 'tizen.Install':
         return this.tizenInstall(value);
       case 'tizen.Package':
@@ -78,11 +80,11 @@ export default class Step {
       case 'tizen.EmulatorStart':
         return this.tizenEmulatorStart(value);
       case 'vbox.Start':
-        return this.vboxStart(value);
+        return this.anyFn(['VBoxManage', 'startvm', Utils.first(value)], []);
       case 'vbox.Pause':
-        return this.vboxPause(value);
+        return this.anyFn(['VBoxManage', 'controlvm', Utils.first(value), 'pause'], []);
       case 'vbox.Resume':
-        return this.vboxResume(value);
+        return this.anyFn(['VBoxManage', 'controlvm', Utils.first(value), 'resume'], []);
       case 'shell.Clean':
         return this.shellClean(value);
       case 'shell.Copy':
@@ -157,43 +159,10 @@ export default class Step {
     await this.fs.saveFile(file, plainText.split(find).join(replace));
   }
 
-  private async shellEcho(data: any): Promise<void> {
-    await this.anyFn(['echo'], data);
-  }
-
-  private async shellNpm(data: any): Promise<void> {
-    await this.anyFn(['npm'], data);
-  }
-
-  private async shellSh(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    await this.app.getCommand().watch(cwd.data, cwd.cwd).wait();
-  }
-
-  private async shellGulp(data: any): Promise<void> {
-    await this.anyFn(['npx', 'gulp'], data);
-  }
-
-  private async shellGit(data: any): Promise<void> {
-    await this.anyFn(['git'], data);
-  }
-
   private async openUrl(data: any): Promise<void> {
     const cwd = this.app.getCwd(data);
     const path: string = Utils.first(cwd.data);
     await this.app.getCommand().watch(['xdg-open', path], cwd.cwd).wait();
-  }
-
-  private async aresInspect(data: any): Promise<void> {
-    await this.anyFn(['ares-inspect'], data);
-  }
-
-  private async aresInstall(data: any): Promise<void> {
-    await this.anyFn(['ares-install'], data);
-  }
-
-  private async aresLaunch(data: any): Promise<void> {
-    await this.anyFn(['ares-launch'], data);
   }
 
   private async tizenInstall(data: any): Promise<void> {
@@ -248,7 +217,8 @@ export default class Step {
         await this.app.getCommand().watch([
           `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', '--remove', `tcp:${port}`
         ], cwd.cwd).wait();
-      } catch (e) {}
+      } catch (e) {
+      }
 
       await this.app.getCommand().watch([
         `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', `tcp:${port}`, `tcp:${port}`
@@ -299,18 +269,6 @@ export default class Step {
     ], cwd.cwd).wait();
   }
 
-  private async vboxStart(data: any): Promise<void> {
-    await this.anyFn(['VBoxManage', 'startvm', Array.isArray(data) ? data[0] : data], []);
-  }
-
-  private async vboxPause(data: any): Promise<void> {
-    await this.anyFn(['VBoxManage', 'controlvm', Array.isArray(data) ? data[0] : data, 'pause'], []);
-  }
-
-  private async vboxResume(data: any): Promise<void> {
-    await this.anyFn(['VBoxManage', 'controlvm', Array.isArray(data) ? data[0] : data, 'resume'], []);
-  }
-
   private async shellClean(data: any): Promise<void> {
     const cwd = this.app.getCwd(data);
     const path: string = Utils.first(cwd.data);
@@ -338,7 +296,7 @@ export default class Step {
     const cwd = this.app.getCwd(data);
     const path: string = Utils.first(cwd.data);
 
-    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/') ) {
+    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/')) {
       await this.fs.mkdir('/' === path[0] ? path : `${this.rootPath}/${path}`);
     }
   }

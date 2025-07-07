@@ -67,7 +67,7 @@ complete -F _smart_builder_complete smart-builder
 smart-builder -e .env webos:debug
 smart-builder -e .env-prod webos:release
 smart-builder webos:install -i 192.168.1.222
-smart-builder webos                               # run "default" task
+smart-builder webos # run "default" task in .smart-builder/webos/main.yaml file
 ```
 
 ## The structure of configuration files
@@ -181,6 +181,7 @@ steps:
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]
   - shell.Mkdir: 'dist'
   - shell.Npm: [ 'install', '-g', 'pkg' ]
+  - shell.Yarn: [ 'run', 'build' ]
   - shell.Sh: [ 'ls', '-1', cwd: 'dist' ]
   - shell.Sh: [ 'sudo', 'modprobe', 'kvm' ]
   - console.Log: [ 'test' ]

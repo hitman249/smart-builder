@@ -10,7 +10,7 @@ export class Console {
 
     program
       .option('-e, --env-file <file>', 'ENVFILE')
-      .option('-i, --input <value>', 'Set env variable: SB_INPUT')
+      .option('-i, --input <value...>', 'Set env variables: SB_INPUT, SB_INPUT1, SB_INPUT2, ...')
       .option('-L, --list', 'Helper from BASH autocomplete')
       .arguments('[target]')
       .action((target: string = 'main') => {
@@ -20,10 +20,12 @@ export class Console {
     program.parse(process.argv);
     this.opts = program.opts();
 
-    const input: string = this.getField('input');
+    const input: string[] = this.getField('input');
 
     if (input) {
-      process.env['SB_INPUT'] = input;
+      input.forEach((value: string, index: number) => {
+        process.env[`SB_INPUT${0 === index ? '' : index}`] = value;
+      });
     }
   }
 
