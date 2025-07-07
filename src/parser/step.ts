@@ -6,6 +6,7 @@ import process from "process";
 import Network from "../system/network";
 import sharp from "sharp";
 import type {ResizeOptions, Sharp} from "sharp";
+import {Client} from "basic-ftp";
 
 export default class Step {
   private readonly app: App;
@@ -101,6 +102,8 @@ export default class Step {
         return this.downloadImage(value, false);
       case 'download.Jpeg':
         return this.downloadImage(value, true);
+      case 'upload.Ftp':
+        return this.uploadFtp(value);
     }
   }
 
@@ -358,6 +361,47 @@ export default class Step {
     }
 
     await this.fs.saveFile(out, buffer);
+  }
+
+  private async uploadFtp(data: any): Promise<void> {
+    if (!data?.PATH_IN || !data?.PATH_OUT || !data?.HOST) {
+      return;
+    }
+
+    const fileIn: string = '/' === data?.PATH_IN[0] ? data?.PATH_IN : `${this.app.getRootPath()}/${data?.PATH_IN}`;
+    const fileOut: string = data?.PATH_OUT;
+    const dirOut: string = _.trim(this.fs.dirname(fileOut), '/');
+
+    const client: Client = new Client();
+    client.ftp.verbose = Utils.isTrue(data.VERBOSE);
+
+    try {
+      await client.access({
+        host: data.HOST,
+        user: data.USER || '',
+        password: data.PASSWORD || '',
+        secure: Utils.isTrue(data.SECURE),
+        port: data?.PORT || 21,
+      });
+
+      if (dirOut) {
+        try {
+          await client.ensureDir(dirOut);
+        } catch (e) {}
+      }
+
+      try {
+        await client.remove(fileIn);
+      } catch (e) {}
+
+      try {
+        await client.uploadFrom(fileIn, fileOut);
+      } catch (e) {}
+    } catch(err) {
+      console.log(err);
+    }
+
+    client.close();
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {

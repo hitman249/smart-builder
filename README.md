@@ -191,6 +191,14 @@ steps:
   - download.File: [ 'https://site.com/archive.tar.gz', 'dist/archive.tar.gz' ]
   - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'inside', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
   - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'inside', '200', '100' ]
+  - upload.Ftp:
+      PATH_IN: 'build/app.wgt'
+      PATH_OUT: '1/app.wgt'
+      HOST: 'site.com'
+      USER: 'anonymous'
+      PASSWORD: ''
+      SECURE: false
+      PORT: 21
 
   # Examples of functional fn.* commands for calculating values 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]

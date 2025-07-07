@@ -1,6 +1,6 @@
 {
   "name": "smart-builder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/src/app.js",
   "private": false,
@@ -10,6 +10,7 @@
     "dev": "tsc && node dist/src/app.js"
   },
   "dependencies": {
+    "basic-ftp": "^5.0.5",
     "commander": "^10.0.1",
     "cookie": "^1.0.2",
     "dotenv": "^16.6.1",
