@@ -2,8 +2,8 @@
   "name": "smart-builder",
   "version": "1.0.1",
   "description": "",
-  "main": "app.js",
-  "private": true,
+  "main": "dist/src/app.js",
+  "private": false,
   "scripts": {
     "build": "tsc",
     "start": "node dist/src/app.js",
