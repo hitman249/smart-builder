@@ -2,7 +2,6 @@ import type {App} from "../app";
 import _ from "lodash";
 import Utils from "../helpers/utils";
 import type FileSystem from "../fs/file-system";
-import xml2js from 'xml2js';
 
 export default class Value {
   private readonly app: App;

@@ -1,8 +1,9 @@
 ## Smart Builder
 
-This is a build automation script that allows you to have a full-fledged project build not only through gitlab-ci.yaml, 
-jenkins and other CI/CD.
-But it also adds more convenient project and environment management for developers during development.
+This is a script for automating the build process, allowing each developer to have a complete local build of the 
+project, not only through CI/CD, like gitlab-ci.yaml, Jenkins or other systems.  
+The distribution is also compact, simple, and compatible with CI/CD, complementing it well.  
+It adds more convenient project and environment management during the development process thanks to command auto-completion.  
 
 ## Requirement
  - Node.js >= 14
