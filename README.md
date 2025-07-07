@@ -181,7 +181,7 @@ steps:
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]
   - shell.Mkdir: 'dist'
   - shell.Npm: [ 'install', '-g', 'pkg' ]
-  - shell.Yarn: [ 'run', 'build' ]
+  - shell.Yarn: [ 'run', 'build', cdw: 'client' ]
   - shell.Sh: [ 'ls', '-1', cwd: 'dist' ]
   - shell.Sh: [ 'sudo', 'modprobe', 'kvm' ]
   - console.Log: [ 'test' ]
