@@ -12,7 +12,7 @@ export class Console {
       .option('-e, --env-file <file>', 'ENVFILE')
       .option('-i, --input <value...>', 'set env variables: SB_INPUT, SB_INPUT1, SB_INPUT2, ...')
       .option('-u, --update', 'self update')
-      .option('-v, --version', 'cersion')
+      .option('-v, --version', 'version')
       .option('-L, --list', 'helper from BASH autocomplete')
       .arguments('[target]')
       .action((target: string = 'main') => {
