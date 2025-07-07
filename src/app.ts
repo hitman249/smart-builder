@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import process from 'process';
+import path from "path";
 import {Env} from "./system/env";
 import Command from "./system/command";
 import Finder from "./parser/finder";
@@ -15,6 +16,7 @@ const BUILD_RULES_DIR: string = '.smart-builder';
 
 export class App {
   private readonly rootPath: string = process.cwd();
+  private readonly sbPath: string = path.join(__dirname, '../..');
 
   private ENV: Env;
   private COMMAND: Command;
@@ -34,7 +36,21 @@ export class App {
     await this.ENV.init();
 
     const target: string = this.CONSOLE.getTarget();
+    const update: boolean = this.CONSOLE.getField('update', false);
+    const version: boolean = this.CONSOLE.getField('version', false);
     const showList: boolean = this.CONSOLE.getField('list', false);
+
+    if (update) {
+      await this.getCommand().watch(['git', 'pull'], this.sbPath).wait();
+      await this.getCommand().watch(['npm', 'i'], this.sbPath).wait();
+      await this.getCommand().watch(['npm', 'run', 'build'], this.sbPath).wait();
+      return;
+    }
+
+    if (version) {
+      console.log('version:', await this.getVersion());
+      return;
+    }
 
     if (showList) {
       for (const item of this.FINDER.getList()) {
@@ -45,6 +61,11 @@ export class App {
     }
 
     await this.run(target);
+  }
+
+  public async getVersion(): Promise<string> {
+    const info: any = await this.getFileSystem().readJsonFile(`${this.sbPath}/package.json`);
+    return info?.['version'];
   }
 
   public async run(target: string): Promise<void> {
