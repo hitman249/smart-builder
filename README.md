@@ -14,7 +14,7 @@ Usage: smart-builder [options] [target]
 
 Options:
   -e, --env-file <file>  ENVFILE
-  -i, --input <value>    Set env variable: SB_INPUT
+  -i, --input <value...> Set env variables: SB_INPUT, SB_INPUT1, SB_INPUT2, ...
   -L, --list             Helper from BASH autocomplete
   -h, --help             display help for command
 ```
