@@ -8,6 +8,8 @@ import CopyFile, {CopyFileEvent} from './copy-file';
 import Network from "../system/network";
 import xml2js from "xml2js";
 import jsyaml from "js-yaml";
+import ini from "ini";
+import gitconfig from "parse-git-config";
 
 export type Progress = {
   success: boolean,
@@ -253,6 +255,18 @@ export default class FileSystem {
         '!!bool': 'lowercase',
       },
     }));
+  }
+
+  public async readIniFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
+    return ini.parse(await this.readFile(pathOrUrl, autoEncoding));
+  }
+
+  public async saveIniFile(path: string, data: Object): Promise<any> {
+    return this.saveFile(path, ini.stringify(data, {section : 'section'}));
+  }
+
+  public async readGitConfigFile(path: string, autoEncoding: boolean = false): Promise<any> {
+    return await gitconfig({path});
   }
 
   public async fileGetContents(filepath: string, autoEncoding: boolean = false): Promise<string> {

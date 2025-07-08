@@ -2,6 +2,7 @@ import type {App} from "../app";
 import _ from "lodash";
 import Utils from "../helpers/utils";
 import type FileSystem from "../fs/file-system";
+import gitconfig from "parse-git-config";
 
 export default class Value {
   private readonly app: App;
@@ -33,6 +34,8 @@ export default class Value {
       switch (rule) {
         case 'fn.Git':
           return this.fnGit(value);
+        case 'fn.GitBranchName':
+          return this.fnGit(['rev-parse', '--abbrev-ref', 'HEAD', ...value]);
         case 'fn.GitFindBranch':
           return this.fnGitFindBranch(value);
         case 'fn.Glob':
@@ -43,6 +46,10 @@ export default class Value {
           return this.fnXml(value);
         case 'fn.Json':
           return this.fnJson(value);
+        case 'fn.Ini':
+          return this.fnIni(value);
+        case 'fn.GitConfig':
+          return this.fnGitConfig(value);
         case 'fn.Yaml':
           return this.fnYaml(value);
         case 'fn.If':
@@ -131,6 +138,20 @@ export default class Value {
     const path: string[] = data[1];
 
     return _.get(await this.fs.readJsonFile(file), path);
+  }
+
+  private async fnIni(data: any): Promise<string> {
+    const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const path: string[] = data[1];
+
+    return _.get(await this.fs.readIniFile(file), path);
+  }
+
+  private async fnGitConfig(data: any): Promise<string> {
+    const file: string = '/' === data[0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const path: string[] = data[1];
+
+    return _.get(await this.fs.readGitConfigFile(file), path);
   }
 
   private async fnYaml(data: any): Promise<string> {

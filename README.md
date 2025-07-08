@@ -140,6 +140,7 @@ steps:
   - load.Env: '.env-prod'
   - edit.Json: [ 'app.json', [ 'name' ], 'My Company' ]
   - edit.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], 'my.app.com' ]
+  - edit.Ini: [ 'app.ini', [ 'app', 'id' ], 'my.app.com' ]
   - edit.Yaml: [ 'app.yaml', [ 'name' ], 'My Company' ]
   - edit.Replace: [ 'app.html', 'id="test"', 'id="new_id"' ]
   - edit.Text:
@@ -181,6 +182,7 @@ steps:
   - shell.Copy: [ 'assets/icon.png', 'dist/icon.png' ]
   - shell.Echo: [ 'test' ]
   - shell.Git: [ 'checkout', 'main', cwd: 'webos' ]
+  - shell.GitPull: [ cwd: 'webos' ]
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]
   - shell.Mkdir: 'dist'
   - shell.Npm: [ 'install', '-g', 'pkg' ]
@@ -203,10 +205,13 @@ steps:
 
   # Examples of functional fn.* commands for calculating values 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
-  - shell.Echo: [ 'Branch:', { fn.Sh: [ 'git', 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] }, cwd: 'webos' ]
-  - shell.Echo: [ 'Branch:', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos' ] }, cwd: 'webos' ]
+  - shell.Echo: [ 'Branch:', { fn.Sh: [ 'git', 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
+  - shell.Echo: [ 'Branch:', { fn.GitBranchName: [ cwd: 'webos' ] } ]
+  - shell.Echo: [ 'Branch:', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos' ] } ]
   - shell.Echo: [ 'App Id:', { fn.Xml: [ 'tizen/build/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] } ]
   - shell.Echo: [ 'App Name:', { fn.Json: [ 'app.json', [ 'name' ] ] } ]
+  - shell.Echo: [ 'App Name:', { fn.Ini: [ 'app.ini', [ 'name' ] ] } ]
   - shell.Echo: [ 'App Name:', { fn.Yaml: [ 'app.yaml', [ 'name' ] ] } ]
+  - shell.Echo: [ 'App Name:', { fn.GitConfig: [ '.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
   - shell.Echo: [ 'Debug Mode:', { fn.If: [ env.DEBUG, 'yes', 'no' ] } ]
 ```

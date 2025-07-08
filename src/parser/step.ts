@@ -42,6 +42,8 @@ export default class Step {
         return this.editXml(value);
       case 'edit.Yaml':
         return this.editYaml(value);
+      case 'edit.Ini':
+        return this.editIni(value);
       case 'edit.Text':
         return this.editText(value);
       case 'edit.Replace':
@@ -58,6 +60,8 @@ export default class Step {
         return this.anyFn(['npx', 'gulp'], value);
       case 'shell.Git':
         return this.anyFn(['git'], value);
+      case 'shell.GitPull':
+        return this.anyFn(['git', 'pull', 'origin', await this.fetchAnyFn(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], value)], value);
       case 'open.Url':
         return this.openUrl(value);
       case 'ares.Inspect':
@@ -140,6 +144,16 @@ export default class Step {
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readYamlFile(file) : {};
     await this.fs.saveYamlFile(file, _.set(content, path, value));
+  }
+
+  private async editIni(data: any): Promise<void> {
+    const hydrateData: any = await this.app.hydrateData(data);
+    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
+    const path: string = hydrateData[1];
+    const value: string = hydrateData[2];
+
+    const content: any = (await this.fs.exists(file)) ? await this.fs.readIniFile(file) : {};
+    await this.fs.saveIniFile(file, _.set(content, path, value));
   }
 
   private async editText(data: any): Promise<void> {
@@ -407,5 +421,10 @@ export default class Step {
   private async anyFn(cmd: string[], data: any): Promise<void> {
     const cwd = this.app.getCwd(data);
     await this.app.getCommand().watch([...cmd, ...cwd.data], cwd.cwd).wait();
+  }
+
+  private async fetchAnyFn(cmd: any[], data: any): Promise<string> {
+    const cwd = this.app.getCwd(data);
+    return await this.app.getCommand().exec([...cmd, ...cwd.data], cwd.cwd);
   }
 }

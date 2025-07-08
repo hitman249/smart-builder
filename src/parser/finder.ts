@@ -41,6 +41,8 @@ export default class Finder {
     list.push(...platforms);
 
     for (const platform of platforms) {
+      skip.push(`${platform}:default`);
+
       for (const doc of this.docs[platform]) {
         const docs: string[] = Object.keys(doc.doc);
         for (const item of docs) {
