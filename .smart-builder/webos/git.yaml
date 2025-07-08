@@ -3,14 +3,14 @@ pull:
   steps:
     - shell.Echo: [ 'Branch:', { fn.GitBranchName: [ cwd: 'webos-client' ] } ]
     - shell.GitPull: [ cwd: 'webos-client' ]
-    - shell.Echo: [ 'Branch jsCore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
     - shell.Git: [ 'submodule', 'update', '--remote', cwd: 'webos-client' ]
 
 gco:
   desc: 'WebOS branch checkout'
   steps:
     - shell.Echo: [ 'Branch: ', { fn.GitBranchName: [ cwd: 'webos-client' ] } ]
-    - shell.Echo: [ 'Branch jsCore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
     - shell.Echo: [ '' ]
     - shell.Git: [ 'fetch', '--all', cwd: 'webos-client' ]
     - shell.Git: [ 'fetch', '--all', cwd: 'webos-client/jscore' ]
@@ -23,7 +23,7 @@ gco:
     - shell.Echo: [ '' ]
     - shell.Echo: [ '' ]
     - shell.Echo: [ 'Branch:', { fn.GitBranchName: [ cwd: 'webos-client' ] } ]
-    - shell.Echo: [ 'Branch jsCore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.GitConfig: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
   required:
     - SB_INPUT
 
