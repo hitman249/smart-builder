@@ -378,13 +378,18 @@ export default class Step {
   }
 
   private async uploadFtp(data: any): Promise<void> {
-    if (!data?.PATH_IN || !data?.PATH_OUT || !data?.HOST) {
+    if (
+      !data?.PATH_IN
+      || _.trim(this.app.getRootPath(), '/') === _.trim(data?.PATH_IN, '/')
+      || !data?.PATH_OUT
+      || !data?.HOST
+    ) {
       return;
     }
 
     const fileIn: string = '/' === data?.PATH_IN[0] ? data?.PATH_IN : `${this.app.getRootPath()}/${data?.PATH_IN}`;
-    const fileOut: string = data?.PATH_OUT;
-    const dirOut: string = _.trim(this.fs.dirname(fileOut), '/');
+    const fileOut: string = `/${_.trim(data?.PATH_OUT, '/')}`;
+    const dirOut: string = `/${_.trim(this.fs.dirname(fileOut), '/')}`;
 
     const client: Client = new Client();
     client.ftp.verbose = Utils.isTrue(data.VERBOSE);
@@ -415,7 +420,9 @@ export default class Step {
       console.log(err);
     }
 
-    client.close();
+    try {
+      client.close();
+    } catch (e) {}
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {

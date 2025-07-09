@@ -194,24 +194,36 @@ steps:
   - download.File: [ 'https://site.com/archive.tar.gz', 'dist/archive.tar.gz' ]
   - download.Png: [ 'https://site.com/image.png', 'assets/splash.png' 'inside', '100' ] # 'contain', 'cover', 'fill', 'inside', 'outside'
   - download.Jpeg: [ 'https://site.com/image.jpeg', 'assets/splash.jpeg', 'inside', '200', '100' ]
-  - upload.Ftp:
-      PATH_IN: 'build/app.wgt'
-      PATH_OUT: '1/app.wgt'
-      HOST: 'site.com'
-      USER: 'anonymous'
-      PASSWORD: ''
-      SECURE: false
-      PORT: 21
+  - upload.Ftp: {
+    PATH_IN: 'build/app.wgt',
+    PATH_OUT: '1/app.wgt',
+    HOST: 'site.com',
+    USER: 'anonymous',
+    PASSWORD: '',
+    SECURE: false,
+    PORT: 21,
+    VERBOSE: false,
+  }
 
   # Examples of functional fn.* commands for calculating values 
   - shell.Echo: [ 'Branch:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
   - shell.Echo: [ 'Branch:', { fn.Sh: [ 'git', 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'webos' ] } ]
-  - shell.Echo: [ 'Branch:', { fn.GitBranchName: [ cwd: 'webos' ] } ]
-  - shell.Echo: [ 'Branch:', { fn.GitFindBranch: [ env.SB_INPUT, cwd: 'webos' ] } ]
+  - shell.Echo: [ 'Branch:', { fn.git.BranchName: [ cwd: 'webos' ] } ]
+  - shell.Echo: [ 'Branch count commits:', { fn.git.Count: [ cwd: 'webos' ] } ]
+  - shell.Echo: [ 'Branch:', { fn.git.FindBranch: [ env.SB_INPUT, cwd: 'webos' ] } ]
   - shell.Echo: [ 'App Id:', { fn.Xml: [ 'tizen/build/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] } ]
   - shell.Echo: [ 'App Name:', { fn.Json: [ 'app.json', [ 'name' ] ] } ]
   - shell.Echo: [ 'App Name:', { fn.Ini: [ 'app.ini', [ 'name' ] ] } ]
   - shell.Echo: [ 'App Name:', { fn.Yaml: [ 'app.yaml', [ 'name' ] ] } ]
-  - shell.Echo: [ 'App Name:', { fn.GitConfig: [ '.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+  - shell.Echo: [ 'App Name:', { fn.git.Config: [ '.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
   - shell.Echo: [ 'Debug Mode:', { fn.If: [ env.DEBUG, 'yes', 'no' ] } ]
+  - shell.Echo: [ 'Size:', { fn.fs.Size: 'tizen/build/config.xml' } ]
+  - shell.Echo: [ 'Basename:', { fn.fs.Basename: 'tizen/build/config.xml' } ]
+  - shell.Echo: [ 'Dirname:', { fn.fs.Dirname: 'tizen/build/config.xml' } ]
+  - shell.Echo: [ 'Join:', { fn.Join: [ 'a', 'b', 'c', separator: '.' ] } ] # a.b.c
+  - shell.Echo: [ 'Sum:', { fn.math.Sum: [ '1', '2', '3' ] } ] # 6
+  - shell.Echo: [ 'Sub:', { fn.math.Sub: [ '4', '2' ] } ] # 2
+  - shell.Echo: [ 'Div:', { fn.math.Div: [ '8', '2' ] } ] # 4
+  - shell.Echo: [ 'Multiplication:', { fn.math.Multiplication: [ '4', '2' ] } ] # 8
+  - shell.Echo: [ 'Trunc:', { fn.math.Trunc: '324.2345' } ] # 324
 ```

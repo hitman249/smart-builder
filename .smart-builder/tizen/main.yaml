@@ -7,9 +7,12 @@ debug:
   desc: 'Tizen compile debug package'
   steps:
     - ':clean'
-    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Mkdir: 'tizen-client/build/dist'
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - ':package'
+    - ':deploy'
   env:
     APP_BUILD_TYPE: DEBUG
     APP_CORE_COMMAND: compileDebug
@@ -20,8 +23,8 @@ release:
   desc: 'Tizen compile release package'
   steps:
     - ':clean'
-    - shell.Echo: [ 'Branch: ', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jsCore:', { fn.Git: [ 'rev-parse', '--abbrev-ref', 'HEAD', cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
   env:
     APP_BUILD_TYPE: RELEASE
@@ -29,18 +32,42 @@ release:
   required:
     - APP_SERVER_URL
 
+deploy:
+  autocomplete: false
+  desc: 'Deploy to rc ftp server'
+  steps:
+    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', ['widget', 'ver'], { fn.Sh: [ 'echo', '"$(date +%-d).$(date +%-m).$(date +%Y)$(date +%H)$(date +%M)"' ]} ]
+    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', [ 'widget', 'size' ], { fn.math.Trunc: { fn.math.Div: [ { fn.fs.Size: { fn.Glob: 'tizen-client/build/app/*.wgt' } }, '1024' ] } } ]
+    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', [ 'widget', 'widgetname' ], { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'name' ] ] } ]
+
+    - upload.Ftp: {
+      PATH_IN: { fn.Glob: 'tizen-client/build/app/*.wgt' },
+      PATH_OUT: 'tizen/${USER}/SmartBuilder.wgt',
+      HOST: env.FTP_HOST,
+      USER: env.FTP_USER,
+      PASSWORD: env.FTP_PASSWORD,
+      SECURE: false,
+      PORT: 21,
+    }
+
+    - upload.Ftp: {
+      PATH_IN: 'tizen-client/build/sssp_config.xml',
+      PATH_OUT: 'tizen/${USER}/sssp_config.xml',
+      HOST: env.FTP_HOST,
+      USER: env.FTP_USER,
+      PASSWORD: env.FTP_PASSWORD,
+      SECURE: false,
+      PORT: 21,
+      VERBOSE: true,
+    }
+
+    - shell.Echo: [ { fn.Join: [ env.APP_SERVER_URL, 't', env.USER, '', separator: '/' ] } ]
+
 clean:
   autocomplete: false
   desc: 'Tizen clean'
   steps:
-    - shell.Clean: 'tizen-client/tizen/core'
-    - shell.Clean: 'tizen-client/tizen/lib'
-    - shell.Clean: 'tizen-client/tizen/src'
-    - shell.Clean: 'tizen-client/tizen/config.xml'
-    - shell.Clean: 'tizen-client/tizen/icon.png'
-    - shell.Clean: 'tizen-client/tizen/index.html'
-    - shell.Clean: 'tizen-client/tizen/SmartPlayer.wgt'
-
+    - shell.Clean: 'tizen-client/build/sssp_config.xml'
 
 copy:
   autocomplete: false
