@@ -2,7 +2,7 @@ pull:
   desc: 'WebOS pull changes'
   steps:
     - shell.Echo: [ 'Branch:', { fn.git.BranchName: [ cwd: 'webos-client' ] } ]
-    - shell.GitPull: [ cwd: 'webos-client' ]
+    - shell.git.Pull: [ cwd: 'webos-client' ]
     - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'webos-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
     - shell.Git: [ 'submodule', 'update', '--remote', cwd: 'webos-client' ]
 

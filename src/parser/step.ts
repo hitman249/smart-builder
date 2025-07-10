@@ -60,8 +60,10 @@ export default class Step {
         return this.anyFn(['npx', 'gulp'], value);
       case 'shell.Git':
         return this.anyFn(['git'], value);
-      case 'shell.GitPull':
+      case 'shell.git.Pull':
         return this.anyFn(['git', 'pull', 'origin', await this.fetchAnyFn(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], value)], value);
+      case 'shell.git.PullSubmodules':
+        return this.anyFn(['git', 'submodule', 'update', '--remote'], value);
       case 'open.Url':
         return this.openUrl(value);
       case 'ares.Inspect':

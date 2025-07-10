@@ -182,7 +182,8 @@ steps:
   - shell.Copy: [ 'assets/icon.png', 'dist/icon.png' ]
   - shell.Echo: [ 'test' ]
   - shell.Git: [ 'checkout', 'main', cwd: 'webos' ]
-  - shell.GitPull: [ cwd: 'webos' ]
+  - shell.git.Pull: [ cwd: 'webos' ]
+  - shell.git.PullSubmodules: [ cwd: 'webos' ]
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]
   - shell.Mkdir: 'dist'
   - shell.Npm: [ 'install', '-g', 'pkg' ]

@@ -7,9 +7,7 @@ debug:
   desc: 'Tizen compile debug package'
   steps:
     - ':clean'
-    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
-    - shell.Mkdir: 'tizen-client/build/dist'
+    - ':branch'
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
     - ':package'
     - ':deploy'
@@ -23,8 +21,7 @@ release:
   desc: 'Tizen compile release package'
   steps:
     - ':clean'
-    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - ':branch'
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
     - ':package'
   env:
