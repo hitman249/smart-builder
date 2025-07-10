@@ -134,6 +134,12 @@ export default class Value {
       }
     }
 
+    for (const item of branch) {
+      if (-1 !== item.indexOf(find)) {
+        return item;
+      }
+    }
+
     return find;
   }
 

@@ -141,6 +141,7 @@ export class App {
         return { data: data.slice(0, -1), cwd: '/' === cwd[0] ? cwd :`${this.rootPath}/${cwd}`};
       }
     }
+
     return { data: data, cwd: undefined };
   }
 }

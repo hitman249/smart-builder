@@ -61,9 +61,14 @@ export default class Step {
       case 'shell.Git':
         return this.anyFn(['git'], value);
       case 'shell.git.Pull':
-        return this.anyFn(['git', 'pull', 'origin', await this.fetchAnyFn(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], value)], value);
+        return this.anyFn(
+          ['git', 'pull', 'origin', await this.fetchAnyFn(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], this.onlyCwd(value))],
+          this.onlyCwd(value)
+        );
       case 'shell.git.PullSubmodules':
-        return this.anyFn(['git', 'submodule', 'update', '--remote'], value);
+        return this.anyFn(['git', 'submodule', 'update', '--recursive', '--remote'], this.onlyCwd(value));
+      case 'shell.git.SetSubmoduleBranch':
+        return this.anyFn(['git', 'submodule', 'set-branch', '-b', value[0], value[1]], this.onlyCwd(value));
       case 'open.Url':
         return this.openUrl(value);
       case 'ares.Inspect':
@@ -436,5 +441,10 @@ export default class Step {
   private async fetchAnyFn(cmd: any[], data: any): Promise<string> {
     const cwd = this.app.getCwd(data);
     return await this.app.getCommand().exec([...cmd, ...cwd.data], cwd.cwd);
+  }
+
+  private onlyCwd(data: any): [{cwd: string}] {
+    const cwd = this.app.getCwd(data);
+    return [{cwd: cwd.cwd}];
   }
 }

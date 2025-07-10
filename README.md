@@ -184,6 +184,7 @@ steps:
   - shell.Git: [ 'checkout', 'main', cwd: 'webos' ]
   - shell.git.Pull: [ cwd: 'webos' ]
   - shell.git.PullSubmodules: [ cwd: 'webos' ]
+  - shell.git.SetSubmoduleBranch: [ 'main', 'jscore', cwd: 'webos' ]
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]
   - shell.Mkdir: 'dist'
   - shell.Npm: [ 'install', '-g', 'pkg' ]
