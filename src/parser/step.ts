@@ -414,6 +414,7 @@ export default class Step {
       } catch (e) {}
 
       try {
+        console.log(`Upload on ftp:`, fileOut);
         await client.uploadFrom(fileIn, fileOut);
       } catch (e) {}
     } catch(err) {

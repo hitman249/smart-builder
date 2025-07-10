@@ -6,7 +6,7 @@ install:
 
 package:
   autocomplete: false
-  desc: 'Tizen build package [cert]'
+  desc: 'Tizen build package'
   steps:
     - shell.Clean: { fn.Glob: 'tizen-client/build/app/*.wgt' }
     - tizen.Package: [ 'smartplayer', cwd: 'tizen-client/build/app' ]

@@ -26,6 +26,7 @@ release:
     - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
     - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
     - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - ':package'
   env:
     APP_BUILD_TYPE: RELEASE
     APP_CORE_COMMAND: compileRelease
@@ -61,17 +62,21 @@ deploy:
       VERBOSE: true,
     }
 
+    - shell.Echo: [ '\nDeploy URL:' ]
     - shell.Echo: [ { fn.Join: [ env.APP_SERVER_URL, 't', env.USER, '', separator: '/' ] } ]
+    - shell.Echo: [ '\nManual update device:\n\nStep 1:' ]
+    - shell.Echo:
+        - fn.Join:
+            - 'b2bapis.b2bcontrol.setURLLauncherAddress(\"'
+            - { fn.Join: [ env.APP_SERVER_URL, 't', env.USER, '', separator: '/' ] }
+            - '\", function(){}, function(){});'
+
+    - shell.Echo: [ '\nStep 2:' ]
+    - shell.Echo: [ 'b2bapis.b2bcontrol.rebootDevice(function(){}, function(){});' ]
 
 clean:
   autocomplete: false
   desc: 'Tizen clean'
   steps:
     - shell.Clean: 'tizen-client/build/sssp_config.xml'
-
-copy:
-  autocomplete: false
-  desc: 'Tizen copy'
-  steps:
-    - shell.Copy: [ 'tizen-client/build/app', 'tizen-client/tizen' ]
 

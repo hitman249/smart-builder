@@ -55,3 +55,8 @@ kvm_off:
   steps:
     - shell.Sh: [ 'sudo', 'modprobe', '-r', 'kvm_amd' ]
     - shell.Sh: [ 'sudo', 'modprobe', '-r', 'kvm' ]
+
+sync_time:
+  desc: 'Sync time'
+  steps:
+    - shell.Sh: [ 'sudo', 'systemctl', 'restart', 'systemd-timesyncd.service' ]

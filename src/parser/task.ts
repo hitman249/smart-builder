@@ -2,12 +2,15 @@ import {App} from "../app";
 import type Step from "./step";
 
 export default class Task {
+  private static index: number = 0;
   private readonly app: App;
   private readonly doc: any;
+  private readonly target: string;
 
-  constructor(app: App, doc: any) {
+  constructor(app: App, doc: any, target: string) {
     this.app = app;
     this.doc = doc;
+    this.target = target;
   }
 
   public async init(): Promise<void> {
@@ -19,6 +22,8 @@ export default class Task {
   }
 
   public async run(): Promise<void> {
+    console.log(`\n[${++Task.index}][${this.target}] ${this.doc.desc || ''}`);
+
     if (this.doc.steps) {
       for (const value of this.doc.steps) {
         const step: Step = this.app.createStep(value);

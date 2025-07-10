@@ -85,7 +85,7 @@ export class App {
       return;
     }
 
-    const task: Task = new Task(this, doc);
+    const task: Task = new Task(this, doc, target);
     await task.init();
 
     if (!task.checkEnvFieldsRequired()) {
