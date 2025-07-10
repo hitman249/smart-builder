@@ -183,6 +183,7 @@ steps:
   - shell.Echo: [ 'test' ]
   - shell.Git: [ 'checkout', 'main', cwd: 'webos' ]
   - shell.git.Pull: [ cwd: 'webos' ]
+  - shell.git.ResetSubmodules: [ cwd: 'webos' ]
   - shell.git.PullSubmodules: [ cwd: 'webos' ]
   - shell.git.SetSubmoduleBranch: [ 'main', 'jscore', cwd: 'webos' ]
   - shell.Gulp: [ 'taskName', cwd: 'webos' ]

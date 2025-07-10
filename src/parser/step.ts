@@ -65,8 +65,12 @@ export default class Step {
           ['git', 'pull', 'origin', await this.fetchAnyFn(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], this.onlyCwd(value))],
           this.onlyCwd(value)
         );
+      case 'shell.git.ResetSubmodules':
+        await this.anyFn(['git', 'submodule', 'deinit', '-f', '.'], this.onlyCwd(value));
+        await this.anyFn(['git', 'submodule', 'update', '--init', '--recursive', '--checkout'], this.onlyCwd(value));
+        return;
       case 'shell.git.PullSubmodules':
-        return this.anyFn(['git', 'submodule', 'update', '--recursive', '--remote'], this.onlyCwd(value));
+        return this.anyFn(['git', 'submodule', 'update', '--init', '--recursive', '--remote', '--checkout'], this.onlyCwd(value));
       case 'shell.git.SetSubmoduleBranch':
         return this.anyFn(['git', 'submodule', 'set-branch', '-b', value[0], value[1]], this.onlyCwd(value));
       case 'open.Url':
