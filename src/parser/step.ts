@@ -402,6 +402,11 @@ export default class Step {
     const fileOut: string = `/${_.trim(data?.PATH_OUT, '/')}`;
     const dirOut: string = `/${_.trim(this.fs.dirname(fileOut), '/')}`;
 
+    if (!await this.fs.exists(fileIn)) {
+      console.log(`File not found to upload on ftp:`, fileIn);
+      return;
+    }
+
     const client: Client = new Client();
     client.ftp.verbose = Utils.isTrue(data.VERBOSE);
 
