@@ -40,7 +40,7 @@ deploy:
 
     - upload.Ftp: {
       PATH_IN: { fn.Glob: 'tizen-client/build/app/*.wgt' },
-      PATH_OUT: 'tizen/${USER}/SmartBuilder.wgt',
+      PATH_OUT: { fn.Join: [ 'tizen/${USER}/', { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'name' ] ] }, '.wgt'] },
       HOST: env.FTP_HOST,
       USER: env.FTP_USER,
       PASSWORD: env.FTP_PASSWORD,
