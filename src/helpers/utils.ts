@@ -156,6 +156,20 @@ export default class Utils {
     return value;
   }
 
+  public static isUrl(value: string): boolean {
+    for (const prefix of ['https://', 'http://']) {
+      if (0 === String(value || '').toLowerCase().indexOf(prefix)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public static isFullPath(path: string): boolean {
+    return '/' === String(path || '')[0];
+  }
+
   public static hashCode(str: string): number {
     return str.split('').reduce((a: number, b: string): number => {
       a = ((a << 5) - a) + b.charCodeAt(0);

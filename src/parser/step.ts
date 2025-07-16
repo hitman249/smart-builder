@@ -351,8 +351,9 @@ export default class Step {
 
   private async downloadImage(data: any, isJpeg: boolean = false): Promise<void> {
     const fits: string[] = ['contain', 'cover', 'fill', 'inside', 'outside'];
-    const url: string = data[0];
-    const out: string = '/' === data[1][0] ? data[1] : `${this.app.getRootPath()}/${data[1]}`;
+    const url: string = Utils.isUrl(data[0]) ? data[0] : (Utils.isFullPath(data[0]) ? data[0] : `${this.app.getRootPath()}/${data[0]}`);
+    const out: string = Utils.isFullPath(data[1]) ? data[1] : `${this.app.getRootPath()}/${data[1]}`;
+
     let fit: ResizeOptions['fit'];
     let width: number;
     let height: number;
@@ -368,13 +369,41 @@ export default class Step {
     }
 
     if (!url) {
-      return Promise.reject(`Error download file from "${url}".`);
+      console.log(`Error download file from "${url}".`);
+      return;
     }
 
-    const network: Network = new Network();
-    await network.download(url, out);
-
     if (!width) {
+      console.log(`Error file from "${url}". There is no width: "${width}". `, );
+      return;
+    }
+
+    if (!Utils.isUrl(url)) {
+      if (await this.fs.exists(url)) {
+        if (url !== out) {
+          if (await this.fs.exists(out)) {
+            await this.fs.rm(out);
+          }
+
+          await this.fs.cp(url, out);
+        }
+      } else {
+        console.log(`Error file from "${url}". File not found.`, );
+        return;
+      }
+    } else {
+      const network: Network = new Network();
+
+      try {
+        await network.download(url, out);
+      } catch (e) {
+        console.log(`Error file from "${url}". Failed to download the file.`, );
+        return;
+      }
+    }
+
+    if (!await this.fs.exists(out)) {
+      console.log(`Error file from "${url}". Failed to download the file.`, );
       return;
     }
 
