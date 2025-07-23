@@ -232,3 +232,17 @@ steps:
   - shell.Echo: [ 'Multiplication:', { fn.math.Multiplication: [ '4', '2' ] } ] # 8
   - shell.Echo: [ 'Trunc:', { fn.math.Trunc: '324.2345' } ] # 324
 ```
+
+System tasks performed before any other task.
+
+```yaml
+_before_:
+  desc: 'Auto start before any platform task'
+  env:
+    PLATFORM_ROOT: 'jscore'
+
+_after_:
+  desc: 'Auto start after any platform task'
+  env:
+    PLATFORM_ROOT: ''
+```

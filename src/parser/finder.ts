@@ -36,7 +36,7 @@ export default class Finder {
   public getList(): string[] {
     let list: string[] = [];
     let skip: string[] = [];
-    let platforms: string[] = Object.keys(this.docs).filter((n: string) => !Utils.endsWith(n, '.yaml'));
+    let platforms: string[] = this.prepareList(Object.keys(this.docs));
 
     list.push(...platforms);
 
@@ -55,21 +55,26 @@ export default class Finder {
       }
     }
 
-    return list.filter((item: string) => -1 === skip.indexOf(item));
+    return this.prepareList(list.filter((item: string) => -1 === skip.indexOf(item)));
+  }
+
+  private prepareList(items: string[]): string[] {
+    return items.filter(
+      (n: string): boolean => !Utils.endsWith(n, '.yaml') && -1 === n.indexOf(':_') && '_' !== n[0]
+    );
   }
 
   public getListTargetsBy(target: string = ''): string[] {
     const [platform, task]: string[] = target.split(':');
 
     if (undefined === this.docs[platform]) {
-      return this.filterByName(platform, Object.keys(this.docs)
-        .filter((n) => !Utils.endsWith(n, '.yaml')));
+      return this.prepareList(this.filterByName(platform, Object.keys(this.docs)));
     }
 
     let result: string[] = [];
     this.docs[platform].forEach((item: Doc) => result.push(...Object.keys(item.doc)));
 
-    return this.filterByName(task, result);
+    return this.prepareList(this.filterByName(task, result));
   }
 
   public filterByName(name: string, targets: string[]): string[] {

@@ -67,7 +67,21 @@ export class App {
       return;
     }
 
+    const [platform = 'main']: string[] = target.split(':');
+
+    await this.run('main:_before_');
+
+    if ('main' !== platform) {
+      await this.run(`${platform}:_before_`);
+    }
+
     await this.run(target);
+
+    if ('main' !== platform) {
+      await this.run(`${platform}:_after_`);
+    }
+
+    await this.run('main:_after_');
   }
 
   public async getVersion(): Promise<string> {
@@ -76,9 +90,14 @@ export class App {
   }
 
   public async run(target: string): Promise<void> {
+    const [, task = 'default']: string[] = target.split(':');
     const doc: any = this.FINDER.getDocsByTarget(target);
 
     if (!doc) {
+      if ('_before_' === task || '_after_' === task) {
+        return;
+      }
+
       console.log(`Target "${target}" not found.`);
 
       this.FINDER.getListTargetsBy(target).forEach((item: string, index: number) => {
@@ -92,15 +111,15 @@ export class App {
       return;
     }
 
-    const task: Task = new Task(this, doc, target);
-    await task.init();
+    const runner: Task = new Task(this, doc, target);
+    await runner.init();
 
-    if (!task.checkEnvFieldsRequired()) {
+    if (!runner.checkEnvFieldsRequired()) {
       console.log(`Task "${target}". Mandatory ENV variables not set.`);
       return;
     }
 
-    await task.run();
+    await runner.run();
   }
 
   public getRootPath(): string {
