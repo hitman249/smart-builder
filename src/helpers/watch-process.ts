@@ -98,8 +98,8 @@ export default class WatchProcess extends EventListener {
     });
   }
 
-  public async wait(): Promise<void> {
-    return this.promise.then((): void => undefined, (): void => undefined);
+  public async wait(): Promise<unknown> {
+    return this.promise;
   }
 
   public async text(): Promise<string> {

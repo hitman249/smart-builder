@@ -44,6 +44,10 @@ export default class Command {
     );
   }
 
+  public createCmd(cmd: string[], cwd?: string): string {
+    return `sh -c '${cwd ? `cd "${cwd}" && ` : ''} ${this.joinArgs(cmd)}'`;
+  }
+
   private joinArgs(cmd: string[]): string {
     return cmd.map((n: string) => -1 === ['|', '>', '>>', '&', '&&', '||'].indexOf(n) ? `"${n}"` : n).join(' ');
   }

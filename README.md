@@ -18,6 +18,7 @@ Options:
   -i, --input <value...>  set env variables: SB_INPUT, SB_INPUT1, SB_INPUT2, ...
   -u, --update            self update
   -v, --version           version
+  -d, --debug             disables command execution
   -L, --list              helper from BASH autocomplete
   -h, --help              display help for command
 ```

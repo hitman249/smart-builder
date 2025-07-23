@@ -234,16 +234,8 @@ export default class Value {
   }
 
   private async fnJoin(data: any[]): Promise<string> {
-    let separator: string = '';
-    let last: string | { separator: string } = data[data.length - 1];
-    let items: string[] = data;
-
-    if ('object' === typeof last && last?.separator) {
-      separator = last?.separator;
-      items = data.slice(0, -1);
-    }
-
-    return items.join(separator);
+    const options: any = this.app.getOptions(data);
+    return options.data.join(options.separator ?? '');
   }
 
   private async fnSplit(data: any[]): Promise<string> {

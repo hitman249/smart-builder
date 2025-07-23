@@ -84,6 +84,10 @@ export class App {
     await this.run('main:_after_');
   }
 
+  public isDebug(): boolean {
+    return this.CONSOLE.getField('debug', false);
+  }
+
   public async getVersion(): Promise<string> {
     const info: any = await this.getFileSystem().readJsonFile(`${this.sbPath}/package.json`);
     return info?.['version'];
@@ -170,12 +174,12 @@ export class App {
       ],
     };
 
-    const result: Options = {};
+    const result: any = {};
 
     if (Array.isArray(data)) {
       let lastIndex: number = 0;
 
-      for (let i: number = data.length - 1; i > 0; i--) {
+      for (let i: number = data.length - 1; i >= 0; i--) {
         let last: any = data[i];
 
         if (!Utils.isEmpty(last) && 'object' === typeof last && !Array.isArray(last)) {
@@ -185,10 +189,8 @@ export class App {
             const value: any = last[variable];
 
             if (-1 !== types.path.indexOf(variable)) {
-              // @ts-ignore
-              result[variable] = Utils.isFullPath(value) ? value : `${this.rootPath}/${value}`;
+              result[variable] = this.getFullPath(value);
             } else {
-              // @ts-ignore
               result[variable] = value;
             }
           });

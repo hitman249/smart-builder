@@ -23,6 +23,10 @@ export default class Step {
     return this.app.getRootPath();
   }
 
+  public get debug(): boolean {
+    return this.app.isDebug();
+  }
+
   public async run(): Promise<void> {
     const hydrateData: any = await this.app.hydrateData(this.data);
 
@@ -136,6 +140,12 @@ export default class Step {
     const path: string = options.data[1];
     const value: string = options.data[2];
 
+    if (this.debug) {
+      console.log('Step.editJson');
+      console.dir({file, path, value}, {depth: 10});
+      return;
+    }
+
     const content: any = (await this.fs.exists(file)) ? await this.fs.readJsonFile(file) : {};
     await this.fs.saveJsonFile(file, _.set(content, path, value));
   }
@@ -145,6 +155,12 @@ export default class Step {
     const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
     const path: string = options.data[1];
     const value: string = options.data[2];
+
+    if (this.debug) {
+      console.log('Step.editXml');
+      console.dir({file, path, value}, {depth: 10});
+      return;
+    }
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readXmlFile(file) : {};
     await this.fs.saveXmlFile(file, _.set(content, path, value));
@@ -156,6 +172,12 @@ export default class Step {
     const path: string = options.data[1];
     const value: string = options.data[2];
 
+    if (this.debug) {
+      console.log('Step.editYaml');
+      console.dir({file, path, value}, {depth: 10});
+      return;
+    }
+
     const content: any = (await this.fs.exists(file)) ? await this.fs.readYamlFile(file) : {};
     await this.fs.saveYamlFile(file, _.set(content, path, value));
   }
@@ -166,6 +188,12 @@ export default class Step {
     const path: string = options.data[1];
     const value: string = options.data[2];
 
+    if (this.debug) {
+      console.log('Step.editIni');
+      console.dir({file, path, value}, {depth: 10});
+      return;
+    }
+
     const content: any = (await this.fs.exists(file)) ? await this.fs.readIniFile(file) : {};
     await this.fs.saveIniFile(file, _.set(content, path, value));
   }
@@ -173,6 +201,12 @@ export default class Step {
   private async editText(data: any): Promise<void> {
     const options: any = this.app.getOptions(await this.app.hydrateData(data));
     const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
+    if (this.debug) {
+      console.log('Step.editText');
+      console.log(options.data.slice(1).join('\n'));
+      return;
+    }
 
     await this.fs.saveFile(file, options.data.slice(1).join('\n'));
   }
@@ -182,6 +216,12 @@ export default class Step {
     const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
     const find: string = options.data[1];
     const replace: string = options.data[2];
+
+    if (this.debug) {
+      console.log('Step.editReplace');
+      console.dir({file, find, replace}, {depth: 10});
+      return;
+    }
 
     if (!await this.fs.exists(file)) {
       return;
@@ -194,6 +234,12 @@ export default class Step {
   private async openUrl(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const path: string = Utils.first(options.data);
+
+    if (this.debug) {
+      console.log('Step.openUrl:', path);
+      return;
+    }
+
     await this.app.getCommand().watch(['xdg-open', path], options.cwd).wait();
   }
 
@@ -201,42 +247,69 @@ export default class Step {
     const options: any = this.app.getOptions(data);
     const filename: string = options.data[0];
     const target: string = options.data[1];
-
-    await this.app.getCommand().watch([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'install', '-n', filename, '-t', target
-    ], options.cwd).wait();
+    ];
+
+    if (this.debug) {
+      console.log('Step.tizenInstall:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async tizenPackage(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const cert: string = options.data[0];
-
-    await this.app.getCommand().watch([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'package', '-t', 'wgt', '-s', cert, '--', './'
-    ], options.cwd).wait();
+    ];
+
+    if (this.debug) {
+      console.log('Step.tizenPackage:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async tizenRun(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const packageId: string = options.data[0];
     const target: string = options.data[1];
-
-    await this.app.getCommand().watch([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'run', '-p', packageId, '-t', target
-    ], options.cwd).wait();
+    ];
+
+    if (this.debug) {
+      console.log('Step.tizenRun:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async tizenInspect(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const packageId: string = options.data[0];
     const DEBUG_PORT: RegExp = new RegExp(/(port(.*):\s+\d+)/g);
-
-    const launchResult: string = await this.app.getCommand().exec([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'debug', packageId
-    ], options.cwd);
+    ];
+
+    let launchResult: string;
+
+    if (this.debug) {
+      console.log('Step.tizenInspect:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+      return;
+    } else {
+      launchResult = await this.app.getCommand().exec(cmd, options.cwd);
+    }
 
     console.log(launchResult);
 
@@ -269,22 +342,31 @@ export default class Step {
   private async tizenStop(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const packageId: string = options.data[0];
+    const cmd: string[] = [`${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'was_kill', packageId];
 
-    await this.app.getCommand().watch(
-      [`${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'was_kill', packageId],
-      options.cwd
-    ).wait();
+    if (this.debug) {
+      console.log('Step.tizenStop:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async tizenRemove(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const packageId: string = options.data[0];
     const target: string = options.data[1];
-
-    await this.app.getCommand().watch([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'uninstall', '-p', packageId, '-t', target
-    ], options.cwd).wait();
+    ];
+
+    if (this.debug) {
+      console.log('Step.tizenRemove:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async tizenEmulatorStart(data: any): Promise<void> {
@@ -292,18 +374,30 @@ export default class Step {
     const platform: string = options.data[0];
     const target: string = options.data[1];
 
-    await this.app.getCommand().watch([
+    const cmd: string[] = [
       `${process.env.HOME}/tizen-studio/platforms/${platform}/tv-samsung/emulator/bin/emulator.sh`,
       '--conf',
       `${process.env.HOME}/tizen-studio-data/emulator/vms/${target}/vm_launch.conf`,
       '-j',
       `${process.env.HOME}/tizen-studio/jdk/bin/java`,
-    ], options.cwd).wait();
+    ];
+
+    if (this.debug) {
+      console.log('Step.tizenEmulatorStart:');
+      console.log(this.app.getCommand().createCmd(cmd, options.cwd));
+    } else {
+      await this.app.getCommand().watch(cmd, options.cwd).wait();
+    }
   }
 
   private async shellClean(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
+    if (this.debug) {
+      console.log('Step.shellClean:', path);
+      return;
+    }
 
     if (Utils.first(options.data) && _.trim(this.rootPath, '\\/') !== _.trim(path, '\\/')) {
       await this.fs.rm(path);
@@ -315,6 +409,11 @@ export default class Step {
     const from: string = this.app.getFullPath(options.data[0], options.cwd);
     const to: string = this.app.getFullPath(options.data[1], options.cwd);
 
+    if (this.debug) {
+      console.log('Step.shellCopy:', {from, to});
+      return;
+    }
+
     if (options.data[0] && _.trim(this.rootPath, '\\/') !== _.trim(from, '\\/') &&
       options.data[1] && _.trim(this.rootPath, '\\/') !== _.trim(to, '\\/')) {
       await this.fs.cp(from, to);
@@ -324,6 +423,11 @@ export default class Step {
   private async shellMkdir(data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
     const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
+    if (this.debug) {
+      console.log('Step.shellMkdir: ', path);
+      return;
+    }
 
     if (path && _.trim(this.rootPath, '\\/') !== _.trim(path, '\\/')) {
       await this.fs.mkdir(path);
@@ -343,6 +447,11 @@ export default class Step {
     const url: string = options.data[0];
     const out: string = options.data[1];
 
+    if (this.debug) {
+      console.log('Step.downloadFile: ', {url, out});
+      return;
+    }
+
     if (!url) {
       return Promise.reject(`Error download file from "${url}".`);
     }
@@ -355,6 +464,11 @@ export default class Step {
     const options: any = this.app.getOptions(data);
     const url: string = Utils.isUrl(options.data[0]) ? options.data[0] : this.app.getFullPath(options.data[0], options.cwd);
     const out: string = this.app.getFullPath(options.data[1], options.cwd);
+
+    if (this.debug) {
+      console.log('Step.downloadImage: ', {url, out});
+      return;
+    }
 
     const fits: string[] = ['contain', 'cover', 'fill', 'inside', 'outside'];
 
@@ -426,6 +540,12 @@ export default class Step {
     const fileOut: string = `/${_.trim(data?.PATH_OUT, '/')}`;
     const dirOut: string = `/${_.trim(this.fs.dirname(fileOut), '/')}`;
 
+    if (this.debug) {
+      console.log('Step.uploadFtp: ', {in: fileIn, out: fileOut});
+      console.dir(data, {depth: 2});
+      return;
+    }
+
     if (
       !data?.PATH_IN
       || _.trim(this.app.getRootPath(), '\\/') === _.trim(fileIn, '\\/')
@@ -477,6 +597,13 @@ export default class Step {
 
   private async anyFn(cmd: string[], data: any): Promise<void> {
     const options: any = this.app.getOptions(data);
+
+    if (this.debug) {
+      console.log('Step.any: ');
+      console.log(this.app.getCommand().createCmd([...cmd, ...options.data], options.cwd));
+      return;
+    }
+
     await this.app.getCommand().watch([...cmd, ...options.data], options.cwd).wait();
   }
 
