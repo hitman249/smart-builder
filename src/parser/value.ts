@@ -57,6 +57,10 @@ export default class Value {
           return this.fnIf(value);
         case 'fn.Join':
           return this.fnJoin(value);
+        case 'fn.Split':
+          return this.fnSplit(value);
+        case 'fn.UpVersion':
+          return this.fnUpVersion(value);
         case 'fn.math.Sum':
           return this.fnMathSum(value);
         case 'fn.math.Sub':
@@ -102,22 +106,23 @@ export default class Value {
   }
 
   private async fnGlob(data: any): Promise<string> {
-    const items: string[] = await this.fs.glob(Array.isArray(data) ? data[0]: data);
+    const options: any = this.app.getOptions(data);
+    const items: string[] = await this.fs.glob(this.app.getFullPath(Utils.first(options.data), options.cwd));
     const path: string = items ? items[0] || '' : '';
 
     if (path) {
-      return '/' !== path[0] ? `${this.app.getRootPath()}/${path}` : path;
+      return this.app.getFullPath(path, options.cwd);
     }
 
     return '';
   }
 
   private async fnGitFindBranch(data: any): Promise<string> {
-    const cwd = this.app.getCwd(data);
-    const find: string = Array.isArray(cwd.data) ? cwd.data[0]: cwd.data;
+    const options: any = this.app.getOptions(data);
+    const find: string = Utils.first(options.data);
 
     const branch: string[] = Utils.natsort(
-      (await this.app.getCommand().exec(['git', 'branch', '-a'], cwd.cwd))
+      (await this.app.getCommand().exec(['git', 'branch', '-a'], options.cwd))
         .split('\n')
         .filter((n: string): boolean => -1 === n.indexOf('->'))
         .map((n: string): string => n.split('origin/').slice(1).join('origin/')),
@@ -152,35 +157,40 @@ export default class Value {
   }
 
   private async fnXml(data: any): Promise<string> {
-    const file: string = '/' === data[0][0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const file: string = this.app.getFullPath(options.data[0], options.cwd);
     const path: string[] = data[1];
 
     return _.get(await this.fs.readXmlFile(file), path);
   }
 
   private async fnJson(data: any): Promise<string> {
-    const file: string = '/' === data[0][0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const file: string = this.app.getFullPath(options.data[0], options.cwd);
     const path: string[] = data[1];
 
     return _.get(await this.fs.readJsonFile(file), path);
   }
 
   private async fnIni(data: any): Promise<string> {
-    const file: string = '/' === data[0][0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const file: string = this.app.getFullPath(options.data[0], options.cwd);
     const path: string[] = data[1];
 
     return _.get(await this.fs.readIniFile(file), path);
   }
 
   private async fnGitConfig(data: any): Promise<string> {
-    const file: string = '/' === data[0][0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const file: string = this.app.getFullPath(options.data[0], options.cwd);
     const path: string[] = data[1];
 
     return _.get(await this.fs.readGitConfigFile(file), path);
   }
 
   private async fnYaml(data: any): Promise<string> {
-    const file: string = '/' === data[0][0] ? data[0] : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const file: string = this.app.getFullPath(options.data[0], options.cwd);
     const path: string[] = data[1];
 
     return _.get(await this.fs.readYamlFile(file), path);
@@ -236,23 +246,50 @@ export default class Value {
     return items.join(separator);
   }
 
+  private async fnSplit(data: any[]): Promise<string> {
+    const options: any = this.app.getOptions(data);
+    let value: string = Utils.first(options.data);
+    let separator: string = options.separator;
+    let section: number = Utils.toInt(options.section);
+
+    return value.split(separator)[section] || '';
+  }
+
+  private async fnUpVersion(data: any[]): Promise<string> {
+    const options: any = this.app.getOptions(data);
+    let value: string = String(Utils.first(options.data));
+    let separator: string = options.separator || '.';
+    let section: number = Utils.toInt(options.section);
+
+    let chunks: string[] = value.split(separator);
+    chunks[section] = String(Utils.toInt(chunks[section]) + 1);
+
+    return chunks.join(separator);
+  }
+
   private async fnFsSize(data: any): Promise<number> {
-    const path: string = '/' === data[0] ? data : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
     return this.fs.size(path);
   }
 
   private async fnFsBasename(data: any): Promise<string> {
-    const path: string = '/' === data[0] ? data : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
     return this.fs.basename(path);
   }
 
   private async fnFsDirname(data: any): Promise<string> {
-    const path: string = '/' === data[0] ? data : `${this.app.getRootPath()}/${data[0]}`;
+    const options: any = this.app.getOptions(data);
+    const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
     return this.fs.dirname(path);
   }
 
   private async anyFn(cmd: any[], data: any): Promise<string> {
-    const cwd = this.app.getCwd(data);
-    return await this.app.getCommand().exec([...cmd, ...cwd.data], cwd.cwd);
+    const options: any = this.app.getOptions(data);
+    return await this.app.getCommand().exec([...cmd, ...options.data], options.cwd);
   }
 }

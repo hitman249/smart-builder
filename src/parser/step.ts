@@ -123,61 +123,65 @@ export default class Step {
   }
 
   private async loadEnv(data: any): Promise<void> {
-    const env: string = await this.fs.readJsonFile(Utils.first(data));
+    const options: any = this.app.getOptions(data);
+    let path: string = Utils.first(options.data);
+    path = Utils.isUrl(path) ? path : this.app.getFullPath(path, options.cwd);
+    const env: string = await this.fs.readJsonFile(path);
     await this.app.getEnv().loadEnv(env);
   }
 
   private async editJson(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const path: string = hydrateData[1];
-    const value: string = hydrateData[2];
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+    const path: string = options.data[1];
+    const value: string = options.data[2];
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readJsonFile(file) : {};
     await this.fs.saveJsonFile(file, _.set(content, path, value));
   }
 
   private async editXml(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const path: string = hydrateData[1];
-    const value: string = hydrateData[2];
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+    const path: string = options.data[1];
+    const value: string = options.data[2];
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readXmlFile(file) : {};
     await this.fs.saveXmlFile(file, _.set(content, path, value));
   }
 
   private async editYaml(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const path: string = hydrateData[1];
-    const value: string = hydrateData[2];
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+    const path: string = options.data[1];
+    const value: string = options.data[2];
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readYamlFile(file) : {};
     await this.fs.saveYamlFile(file, _.set(content, path, value));
   }
 
   private async editIni(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const path: string = hydrateData[1];
-    const value: string = hydrateData[2];
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+    const path: string = options.data[1];
+    const value: string = options.data[2];
 
     const content: any = (await this.fs.exists(file)) ? await this.fs.readIniFile(file) : {};
     await this.fs.saveIniFile(file, _.set(content, path, value));
   }
 
   private async editText(data: any): Promise<void> {
-    const hydrateData: string[] = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    await this.fs.saveFile(file, hydrateData.slice(1).join('\n'));
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+
+    await this.fs.saveFile(file, options.data.slice(1).join('\n'));
   }
 
   private async editReplace(data: any): Promise<void> {
-    const hydrateData: any = await this.app.hydrateData(data);
-    const file: string = '/' === hydrateData[0][0] ? hydrateData[0] : `${this.rootPath}/${hydrateData[0]}`;
-    const find: string = hydrateData[1];
-    const replace: string = hydrateData[2];
+    const options: any = this.app.getOptions(await this.app.hydrateData(data));
+    const file: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
+    const find: string = options.data[1];
+    const replace: string = options.data[2];
 
     if (!await this.fs.exists(file)) {
       return;
@@ -188,51 +192,51 @@ export default class Step {
   }
 
   private async openUrl(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const path: string = Utils.first(cwd.data);
-    await this.app.getCommand().watch(['xdg-open', path], cwd.cwd).wait();
+    const options: any = this.app.getOptions(data);
+    const path: string = Utils.first(options.data);
+    await this.app.getCommand().watch(['xdg-open', path], options.cwd).wait();
   }
 
   private async tizenInstall(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const filename: string = cwd.data[0];
-    const target: string = cwd.data[1];
+    const options: any = this.app.getOptions(data);
+    const filename: string = options.data[0];
+    const target: string = options.data[1];
 
     await this.app.getCommand().watch([
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'install', '-n', filename, '-t', target
-    ], cwd.cwd).wait();
+    ], options.cwd).wait();
   }
 
   private async tizenPackage(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const cert: string = cwd.data[0];
+    const options: any = this.app.getOptions(data);
+    const cert: string = options.data[0];
 
     await this.app.getCommand().watch([
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'package', '-t', 'wgt', '-s', cert, '--', './'
-    ], cwd.cwd).wait();
+    ], options.cwd).wait();
   }
 
   private async tizenRun(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const packageId: string = cwd.data[0];
-    const target: string = cwd.data[1];
+    const options: any = this.app.getOptions(data);
+    const packageId: string = options.data[0];
+    const target: string = options.data[1];
 
     await this.app.getCommand().watch([
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'run', '-p', packageId, '-t', target
-    ], cwd.cwd).wait();
+    ], options.cwd).wait();
   }
 
   private async tizenInspect(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const packageId: string = cwd.data[0];
+    const options: any = this.app.getOptions(data);
+    const packageId: string = options.data[0];
     const DEBUG_PORT: RegExp = new RegExp(/(port(.*):\s+\d+)/g);
 
     const launchResult: string = await this.app.getCommand().exec([
       `${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'debug', packageId
-    ], cwd.cwd);
+    ], options.cwd);
 
     console.log(launchResult);
 
@@ -244,13 +248,13 @@ export default class Step {
       try {
         await this.app.getCommand().watch([
           `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', '--remove', `tcp:${port}`
-        ], cwd.cwd).wait();
+        ], options.cwd).wait();
       } catch (e) {
       }
 
       await this.app.getCommand().watch([
         `${process.env.HOME}/tizen-studio/tools/sdb`, 'forward', `tcp:${port}`, `tcp:${port}`
-      ], cwd.cwd).wait();
+      ], options.cwd).wait();
 
       const doc: any = await this.app.getNetwork().getJSON(`http://localhost:${port}/json`);
       const postfix: string = doc?.[0]?.['devtoolsFrontendUrl'];
@@ -263,30 +267,30 @@ export default class Step {
   }
 
   private async tizenStop(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const packageId: string = cwd.data[0];
+    const options: any = this.app.getOptions(data);
+    const packageId: string = options.data[0];
 
     await this.app.getCommand().watch(
       [`${process.env.HOME}/tizen-studio/tools/sdb`, 'shell', '0', 'was_kill', packageId],
-      cwd.cwd
+      options.cwd
     ).wait();
   }
 
   private async tizenRemove(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const packageId: string = cwd.data[0];
-    const target: string = cwd.data[1];
+    const options: any = this.app.getOptions(data);
+    const packageId: string = options.data[0];
+    const target: string = options.data[1];
 
     await this.app.getCommand().watch([
       `${process.env.HOME}/tizen-studio/tools/ide/bin/tizen`,
       'uninstall', '-p', packageId, '-t', target
-    ], cwd.cwd).wait();
+    ], options.cwd).wait();
   }
 
   private async tizenEmulatorStart(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const platform: string = cwd.data[0];
-    const target: string = cwd.data[1];
+    const options: any = this.app.getOptions(data);
+    const platform: string = options.data[0];
+    const target: string = options.data[1];
 
     await this.app.getCommand().watch([
       `${process.env.HOME}/tizen-studio/platforms/${platform}/tv-samsung/emulator/bin/emulator.sh`,
@@ -294,38 +298,35 @@ export default class Step {
       `${process.env.HOME}/tizen-studio-data/emulator/vms/${target}/vm_launch.conf`,
       '-j',
       `${process.env.HOME}/tizen-studio/jdk/bin/java`,
-    ], cwd.cwd).wait();
+    ], options.cwd).wait();
   }
 
   private async shellClean(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const path: string = Utils.first(cwd.data);
+    const options: any = this.app.getOptions(data);
+    const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
 
-    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/')) {
-      await this.fs.rm('/' === path[0] ? path : `${this.rootPath}/${path}`);
+    if (Utils.first(options.data) && _.trim(this.rootPath, '\\/') !== _.trim(path, '\\/')) {
+      await this.fs.rm(path);
     }
   }
 
   private async shellCopy(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const from: string = cwd.data[0];
-    const to: string = cwd.data[1];
+    const options: any = this.app.getOptions(data);
+    const from: string = this.app.getFullPath(options.data[0], options.cwd);
+    const to: string = this.app.getFullPath(options.data[1], options.cwd);
 
-    if (from && _.trim(this.rootPath, '/') !== _.trim(from, '/') &&
-      to && _.trim(this.rootPath, '/') !== _.trim(to, '/')) {
-      await this.fs.cp(
-        '/' === from[0] ? from : `${this.rootPath}/${from}`,
-        '/' === to[0] ? to : `${this.rootPath}/${to}`,
-      );
+    if (options.data[0] && _.trim(this.rootPath, '\\/') !== _.trim(from, '\\/') &&
+      options.data[1] && _.trim(this.rootPath, '\\/') !== _.trim(to, '\\/')) {
+      await this.fs.cp(from, to);
     }
   }
 
   private async shellMkdir(data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    const path: string = Utils.first(cwd.data);
+    const options: any = this.app.getOptions(data);
+    const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
 
-    if (path && _.trim(this.rootPath, '/') !== _.trim(path, '/')) {
-      await this.fs.mkdir('/' === path[0] ? path : `${this.rootPath}/${path}`);
+    if (path && _.trim(this.rootPath, '\\/') !== _.trim(path, '\\/')) {
+      await this.fs.mkdir(path);
     }
   }
 
@@ -338,21 +339,24 @@ export default class Step {
   }
 
   private async downloadFile(data: any): Promise<void> {
-    const url: string = data[0];
-    const out: string = data[1];
+    const options: any = this.app.getOptions(data);
+    const url: string = options.data[0];
+    const out: string = options.data[1];
 
     if (!url) {
       return Promise.reject(`Error download file from "${url}".`);
     }
 
     const network: Network = new Network();
-    await network.download(url, '/' === out[0] ? out : `${this.app.getRootPath()}/${out}`);
+    await network.download(url, this.app.getFullPath(out, options.cwd));
   }
 
   private async downloadImage(data: any, isJpeg: boolean = false): Promise<void> {
+    const options: any = this.app.getOptions(data);
+    const url: string = Utils.isUrl(options.data[0]) ? options.data[0] : this.app.getFullPath(options.data[0], options.cwd);
+    const out: string = this.app.getFullPath(options.data[1], options.cwd);
+
     const fits: string[] = ['contain', 'cover', 'fill', 'inside', 'outside'];
-    const url: string = Utils.isUrl(data[0]) ? data[0] : (Utils.isFullPath(data[0]) ? data[0] : `${this.app.getRootPath()}/${data[0]}`);
-    const out: string = Utils.isFullPath(data[1]) ? data[1] : `${this.app.getRootPath()}/${data[1]}`;
 
     let fit: ResizeOptions['fit'];
     let width: number;
@@ -418,18 +422,18 @@ export default class Step {
   }
 
   private async uploadFtp(data: any): Promise<void> {
+    const fileIn: string = this.app.getFullPath(data?.PATH_IN);
+    const fileOut: string = `/${_.trim(data?.PATH_OUT, '/')}`;
+    const dirOut: string = `/${_.trim(this.fs.dirname(fileOut), '/')}`;
+
     if (
       !data?.PATH_IN
-      || _.trim(this.app.getRootPath(), '/') === _.trim(data?.PATH_IN, '/')
+      || _.trim(this.app.getRootPath(), '\\/') === _.trim(fileIn, '\\/')
       || !data?.PATH_OUT
       || !data?.HOST
     ) {
       return;
     }
-
-    const fileIn: string = '/' === data?.PATH_IN[0] ? data?.PATH_IN : `${this.app.getRootPath()}/${data?.PATH_IN}`;
-    const fileOut: string = `/${_.trim(data?.PATH_OUT, '/')}`;
-    const dirOut: string = `/${_.trim(this.fs.dirname(fileOut), '/')}`;
 
     if (!await this.fs.exists(fileIn)) {
       console.log(`File not found to upload on ftp:`, fileIn);
@@ -472,17 +476,17 @@ export default class Step {
   }
 
   private async anyFn(cmd: string[], data: any): Promise<void> {
-    const cwd = this.app.getCwd(data);
-    await this.app.getCommand().watch([...cmd, ...cwd.data], cwd.cwd).wait();
+    const options: any = this.app.getOptions(data);
+    await this.app.getCommand().watch([...cmd, ...options.data], options.cwd).wait();
   }
 
   private async fetchAnyFn(cmd: any[], data: any): Promise<string> {
-    const cwd = this.app.getCwd(data);
-    return await this.app.getCommand().exec([...cmd, ...cwd.data], cwd.cwd);
+    const options: any = this.app.getOptions(data);
+    return await this.app.getCommand().exec([...cmd, ...options.data], options.cwd);
   }
 
   private onlyCwd(data: any): [{cwd: string}] {
-    const cwd = this.app.getCwd(data);
-    return [{cwd: cwd.cwd}];
+    const options: any = this.app.getOptions(data);
+    return [{cwd: options.cwd}];
   }
 }

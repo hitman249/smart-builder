@@ -224,6 +224,8 @@ steps:
   - shell.Echo: [ 'Basename:', { fn.fs.Basename: 'tizen/build/config.xml' } ]
   - shell.Echo: [ 'Dirname:', { fn.fs.Dirname: 'tizen/build/config.xml' } ]
   - shell.Echo: [ 'Join:', { fn.Join: [ 'a', 'b', 'c', separator: '.' ] } ] # a.b.c
+  - shell.Echo: [ 'Split:', { fn.Split: [ 'a.b.c', separator: '.', section: '0' ] } ] # a
+  - shell.Echo: [ 'UpVersion:', { fn.UpVersion: [ '1.1.1', separator: '.', section: '2' ] } ] # 1.1.2
   - shell.Echo: [ 'Sum:', { fn.math.Sum: [ '1', '2', '3' ] } ] # 6
   - shell.Echo: [ 'Sub:', { fn.math.Sub: [ '4', '2' ] } ] # 2
   - shell.Echo: [ 'Div:', { fn.math.Div: [ '8', '2' ] } ] # 4

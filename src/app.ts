@@ -11,6 +11,13 @@ import Value from "./parser/value";
 import Task from "./parser/task";
 import FileSystem from "./fs/file-system";
 import Network from "./system/network";
+import Utils from "./helpers/utils";
+
+export type Options = {
+  data?: string[] | string,
+  cwd?: string,
+  ignoreError?: boolean,
+};
 
 const BUILD_RULES_DIR: string = '.smart-builder';
 
@@ -100,6 +107,10 @@ export class App {
     return this.rootPath;
   }
 
+  public getFullPath(path: string, cwd?: string): string {
+    return Utils.isFullPath(path) ? path : `${this.rootPath}/${cwd ? `${cwd}/${path}` : path}`;
+  }
+
   public createStep(value: any): Step {
     return new Step(this, value);
   }
@@ -132,17 +143,50 @@ export class App {
     return this.NETWORK;
   }
 
-  public getCwd(data: any): { data: any, cwd: string | undefined } {
-    if (Array.isArray(data)) {
-      let last: any = data[data.length - 1];
-      let cwd: string = last?.cwd;
+  public getOptions(data: any): Options {
+    const types: {[type: string]: (keyof Options)[]} = {
+      path: [
+        'cwd',
+      ],
+    };
 
-      if (cwd) {
-        return { data: data.slice(0, -1), cwd: '/' === cwd[0] ? cwd :`${this.rootPath}/${cwd}`};
+    const result: Options = {};
+
+    if (Array.isArray(data)) {
+      let lastIndex: number = 0;
+
+      for (let i: number = data.length - 1; i > 0; i--) {
+        let last: any = data[i];
+
+        if (!Utils.isEmpty(last) && 'object' === typeof last) {
+          lastIndex++;
+
+          Object.keys(last).forEach((variable: keyof Options) => {
+            const value: any = last[variable];
+
+            if (-1 !== types.path.indexOf(variable)) {
+              // @ts-ignore
+              result[variable] = Utils.isFullPath(value) ? value : `${this.rootPath}/${value}`;
+            } else {
+              // @ts-ignore
+              result[variable] = value;
+            }
+          });
+
+          continue;
+        }
+
+        break;
+      }
+
+      if (lastIndex > 0) {
+        data = data.slice(0, -lastIndex);
       }
     }
 
-    return { data: data, cwd: undefined };
+    result['data'] = data;
+
+    return result;
   }
 }
 

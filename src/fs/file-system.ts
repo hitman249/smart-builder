@@ -213,9 +213,7 @@ export default class FileSystem {
   }
 
   public async readFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<string> {
-    const isUrl: boolean = 0 === pathOrUrl.indexOf('http:') || 0 === pathOrUrl.indexOf('https:');
-
-    if (isUrl) {
+    if (Utils.isUrl(pathOrUrl)) {
       const network: Network = new Network();
       return network.get(pathOrUrl);
     }
