@@ -1,0 +1,33 @@
+default:
+  desc: 'Build'
+  steps:
+    - ':debug'
+
+debug:
+  desc: 'JS Core compile debug'
+  steps:
+    - ':branch'
+    - shell.Gulp: [ 'build', cwd: 'jscore' ]
+  env:
+    APP_BUILD_TYPE: DEBUG
+    APP_CORE_COMMAND: compileDebug
+  required:
+    - APP_SERVER_URL
+
+release:
+  desc: 'Tizen compile release package'
+  steps:
+    - ':branch'
+    - shell.Gulp: [ 'build', cwd: 'jscore' ]
+  env:
+    APP_BUILD_TYPE: RELEASE
+    APP_CORE_COMMAND: compileRelease
+  required:
+    - APP_SERVER_URL
+
+clean:
+  autocomplete: false
+  desc: 'Tizen clean'
+  steps:
+    - shell.Clean: 'jscore/build'
+

@@ -1,0 +1,19 @@
+branch:
+  desc: 'JS Core branch'
+  steps:
+    - shell.Echo: [ 'Branch:', { fn.git.BranchName: [ cwd: 'jscore' ] } ]
+    - shell.Echo: [ '' ]
+
+status:
+  desc: 'JS Core branch status'
+  steps:
+    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'jscore' ] } ]
+    - shell.Echo: [ '' ]
+    - shell.Git: [ 'status', cwd: 'jscore' ]
+    - shell.Echo: [ '' ]
+
+up_version:
+  desc: 'JS Core up minor version'
+  steps:
+    - shell.Echo:
+        - { fn.UpVersion: [ { fn.Json: [ 'jscore/package.json', [ 'version' ] ] }, separator: '.', section: '2' ] }
