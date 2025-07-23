@@ -1,3 +1,8 @@
+_before_:
+  desc: 'Auto start before any platform task'
+  env:
+    PLATFORM_ROOT: 'jscore'
+
 default:
   desc: 'Build'
   steps:
@@ -7,7 +12,7 @@ debug:
   desc: 'JS Core compile debug'
   steps:
     - ':branch'
-    - shell.Gulp: [ 'build', cwd: 'jscore' ]
+    - shell.Gulp: [ 'build', cwd: env.PLATFORM_ROOT ]
   env:
     APP_BUILD_TYPE: DEBUG
     APP_CORE_COMMAND: compileDebug
@@ -18,7 +23,7 @@ release:
   desc: 'Tizen compile release package'
   steps:
     - ':branch'
-    - shell.Gulp: [ 'build', cwd: 'jscore' ]
+    - shell.Gulp: [ 'build', cwd: env.PLATFORM_ROOT ]
   env:
     APP_BUILD_TYPE: RELEASE
     APP_CORE_COMMAND: compileRelease
@@ -29,5 +34,5 @@ clean:
   autocomplete: false
   desc: 'Tizen clean'
   steps:
-    - shell.Clean: 'jscore/build'
+    - shell.Clean: { fn.Join: [ env.PLATFORM_ROOT, 'build', separator: '/' ] }
 
