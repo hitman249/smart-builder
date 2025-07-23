@@ -108,7 +108,8 @@ export class App {
   }
 
   public getFullPath(path: string, cwd?: string): string {
-    return Utils.isFullPath(path) ? path : `${this.rootPath}/${cwd ? `${cwd}/${path}` : path}`;
+    const prefix: string = cwd ? (Utils.isFullPath(cwd) ? cwd : `${this.rootPath}/${cwd}`) : this.rootPath;
+    return Utils.isFullPath(path) ? path : `${prefix}/${path}`;
   }
 
   public createStep(value: any): Step {
@@ -158,7 +159,7 @@ export class App {
       for (let i: number = data.length - 1; i > 0; i--) {
         let last: any = data[i];
 
-        if (!Utils.isEmpty(last) && 'object' === typeof last) {
+        if (!Utils.isEmpty(last) && 'object' === typeof last && !Array.isArray(last)) {
           lastIndex++;
 
           Object.keys(last).forEach((variable: keyof Options) => {
