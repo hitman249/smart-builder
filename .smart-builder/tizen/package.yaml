@@ -2,27 +2,27 @@ install:
   desc: 'Tizen install package'
   steps:
     - ':package'
-    - tizen.Install: [ { fn.Glob: 'tizen-client/build/app/*.wgt' }, 'env.SB_INPUT?:t-0625-1', cwd: 'tizen-client/build/app' ]
+    - tizen.Install: [ { fn.Glob: [ 'build/app/*.wgt', cwd: env.PLATFORM_ROOT ] }, 'env.SB_INPUT?:t-0625-1', cwd: env.BUILD_APP_ROOT ]
 
 package:
   autocomplete: false
   desc: 'Tizen build package'
   steps:
-    - shell.Clean: { fn.Glob: 'tizen-client/build/app/*.wgt' }
-    - tizen.Package: [ 'smartplayer', cwd: 'tizen-client/build/app' ]
+    - shell.Clean: { fn.Glob: [ 'build/app/*.wgt', cwd: env.PLATFORM_ROOT ] }
+    - tizen.Package: [ 'smartplayer', cwd: env.BUILD_APP_ROOT ]
 
 run:
   desc: 'Tizen run application'
   steps:
     - tizen.Run:
-      - { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+      - { fn.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], cwd: env.BUILD_APP_ROOT ] }
       - 'env.SB_INPUT?:t-0625-1'
 
 inspect:
   desc: 'Tizen inspect application'
   steps:
     - tizen.Inspect:
-      - { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+      - { fn.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], cwd: env.BUILD_APP_ROOT ] }
 #      - 'env.SB_INPUT?:t-0625-1'
       - 'env.SB_INPUT?:emulator-26101'
 
@@ -30,12 +30,12 @@ stop:
   desc: 'Tizen stop application'
   steps:
     - tizen.Stop:
-        - { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+        - { fn.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], cwd: env.BUILD_APP_ROOT ] }
         - 'env.SB_INPUT?:t-0625-1'
 
 remove:
   desc: 'Tizen remove application'
   steps:
     - tizen.Remove:
-      - { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ] ] }
+      - { fn.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], cwd: env.BUILD_APP_ROOT ] }
       - 'env.SB_INPUT?:t-0625-1'

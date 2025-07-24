@@ -2,12 +2,12 @@ pull:
   desc: 'Tizen pull changes'
   steps:
     - ':branch'
-    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client' ]
-    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client/jscore' ]
-    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: 'tizen-client' ]
-    - shell.git.ResetSubmodules: [ cwd: 'tizen-client' ]
-    - shell.git.Pull: [ cwd: 'tizen-client' ]
-    - shell.git.PullSubmodules: [ cwd: 'tizen-client' ]
+    - shell.Git: [ 'fetch', '--all', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'fetch', '--all', cwd: env.JS_CORE_ROOT ]
+    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: env.PLATFORM_ROOT ]
+    - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
+    - shell.git.Pull: [ cwd: env.PLATFORM_ROOT ]
+    - shell.git.PullSubmodules: [ cwd: env.PLATFORM_ROOT ]
     - ':i'
     - ':branch'
 
@@ -15,13 +15,13 @@ gco:
   desc: 'Tizen branch checkout'
   steps:
     - ':branch'
-    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client' ]
-    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client/jscore' ]
-    - shell.Git: [ 'checkout', '-f', '.gitmodules', cwd: 'tizen-client' ]
-    - shell.Git: [ 'checkout', '-f', 'package.json', cwd: 'tizen-client' ]
-    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: 'tizen-client' ]
-    - shell.Git: [ 'checkout', { fn.git.FindBranch: [ env.SB_INPUT, cwd: 'tizen-client' ] }, cwd: 'tizen-client' ]
-    - shell.git.ResetSubmodules: [ cwd: 'tizen-client' ]
+    - shell.Git: [ 'fetch', '--all', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'fetch', '--all', cwd: env.JS_CORE_ROOT ]
+    - shell.Git: [ 'checkout', '-f', '.gitmodules', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'checkout', '-f', 'package.json', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'checkout', { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.PLATFORM_ROOT ] }, cwd: env.PLATFORM_ROOT ]
+    - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
     - ':i'
     - ':branch'
   required:
@@ -31,11 +31,11 @@ gco_core:
   desc: 'Tizen branch checkout from jscore'
   steps:
     - ':branch'
-    - shell.Git: [ 'fetch', '--all', cwd: 'tizen-client/jscore' ]
-    - shell.git.SetSubmoduleBranch: [ { fn.git.FindBranch: [ env.SB_INPUT, cwd: 'tizen-client/jscore' ] }, 'jscore', cwd: 'tizen-client' ]
-    - shell.git.PullSubmodules: [ cwd: 'tizen-client' ]
-#    - shell.git.ResetSubmodules: [ cwd: 'tizen-client' ]
-    - shell.Npm: [ 'i', cwd: 'tizen-client/jscore' ]
+    - shell.Git: [ 'fetch', '--all', cwd: env.JS_CORE_ROOT ]
+    - shell.git.SetSubmoduleBranch: [ { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.JS_CORE_ROOT ] }, 'jscore', cwd: env.PLATFORM_ROOT ]
+    - shell.git.PullSubmodules: [ cwd: env.PLATFORM_ROOT ]
+#    - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
+    - shell.Npm: [ 'i', cwd: env.JS_CORE_ROOT ]
     - shell.Echo: [ '' ]
     - ':branch'
   required:
@@ -44,33 +44,33 @@ gco_core:
 status:
   desc: 'Tizen branch status'
   steps:
-    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
+    - shell.Echo: [ 'Branch: ', { fn.git.BranchName: [ cwd: env.PLATFORM_ROOT ] } ]
     - shell.Echo: [ '' ]
-    - shell.Git: [ 'status', cwd: 'tizen-client' ]
+    - shell.Git: [ 'status', cwd: env.PLATFORM_ROOT ]
     - shell.Echo: [ '' ]
-    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ '.gitmodules', [ 'submodule "jscore"', 'branch' ], cwd: env.PLATFORM_ROOT ] } ]
     - shell.Echo: [ '' ]
-    - shell.Git: [ 'status', cwd: 'tizen-client/jscore' ]
+    - shell.Git: [ 'status', cwd: env.JS_CORE_ROOT ]
 
 branch:
   desc: 'Tizen branch'
   steps:
-    - shell.Echo: [ 'Branch:', { fn.git.BranchName: [ cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ 'tizen-client/.gitmodules', [ 'submodule "jscore"', 'branch' ] ] } ]
+    - shell.Echo: [ 'Branch:', { fn.git.BranchName: [ cwd: env.PLATFORM_ROOT ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.git.Config: [ '.gitmodules', [ 'submodule "jscore"', 'branch' ], cwd: env.PLATFORM_ROOT ] } ]
     - shell.Echo: [ '' ]
 
 i:
   desc: 'Tizen npm install'
   steps:
-    - shell.Npm: [ 'i', cwd: 'tizen-client' ]
-    - shell.Npm: [ 'i', cwd: 'tizen-client/jscore' ]
+    - shell.Npm: [ 'i', cwd: env.PLATFORM_ROOT ]
+    - shell.Npm: [ 'i', cwd: env.JS_CORE_ROOT ]
     - shell.Echo: [ '' ]
 
 find:
   desc: 'Tizen branch find'
   steps:
-    - shell.Echo: [ 'Branch:', { fn.git.FindBranch: [ env.SB_INPUT, cwd: 'tizen-client' ] } ]
-    - shell.Echo: [ 'Branch jscore:', { fn.git.FindBranch: [ env.SB_INPUT, cwd: 'tizen-client/jscore' ] } ]
+    - shell.Echo: [ 'Branch:', { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.PLATFORM_ROOT ] } ]
+    - shell.Echo: [ 'Branch jscore:', { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.JS_CORE_ROOT ] } ]
     - shell.Echo: [ '' ]
   required:
     - SB_INPUT

@@ -1,3 +1,10 @@
+_before_:
+  desc: 'Auto start before any platform task'
+  env:
+    PLATFORM_ROOT: 'tizen-client'
+    JS_CORE_ROOT: 'tizen-client/jscore'
+    BUILD_APP_ROOT: 'tizen-client/build/app'
+
 default:
   desc: 'Build'
   steps:
@@ -7,13 +14,15 @@ debug:
   desc: 'Tizen compile debug package'
   steps:
     - ':clean'
+    - shell.Echo: [ '\nBuild version:', env.APP_VERSION ]
     - ':branch'
-    - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - shell.Gulp: [ 'buildWithCore', cwd: env.PLATFORM_ROOT ]
     - ':package'
     - ':deploy'
   env:
     APP_BUILD_TYPE: DEBUG
     APP_CORE_COMMAND: compileDebug
+    APP_VERSION: { fn.Sh: [ 'echo', '"$(date +%-d).$(date +%-m).$(date +%Y)$(date +%H)$(date +%M)"' ]}
   required:
     - APP_SERVER_URL
 
@@ -22,7 +31,7 @@ release:
   steps:
     - ':clean'
     - ':branch'
-    - shell.Gulp: [ 'buildWithCore', cwd: 'tizen-client' ]
+    - shell.Gulp: [ 'buildWithCore', cwd: env.PLATFORM_ROOT ]
     - ':package'
   env:
     APP_BUILD_TYPE: RELEASE
@@ -34,13 +43,13 @@ deploy:
   autocomplete: false
   desc: 'Deploy to rc ftp server'
   steps:
-    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', ['widget', 'ver'], { fn.Sh: [ 'echo', '"$(date +%-d).$(date +%-m).$(date +%Y)$(date +%H)$(date +%M)"' ]} ]
-    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', [ 'widget', 'size' ], { fn.math.Trunc: { fn.math.Div: [ { fn.fs.Size: { fn.Glob: 'tizen-client/build/app/*.wgt' } }, '1024' ] } } ]
-    - edit.Xml: [ 'tizen-client/build/sssp_config.xml', [ 'widget', 'widgetname' ], { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'name' ] ] } ]
+    - edit.Xml: [ 'build/sssp_config.xml', ['widget', 'ver'], env.APP_VERSION, cwd: env.PLATFORM_ROOT ]
+    - edit.Xml: [ 'build/sssp_config.xml', [ 'widget', 'size' ], { fn.math.Trunc: { fn.math.Div: [ { fn.fs.Size: { fn.Glob: [ 'build/app/*.wgt', cwd: env.PLATFORM_ROOT ] } }, '1024' ] } }, cwd: env.PLATFORM_ROOT ]
+    - edit.Xml: [ 'build/sssp_config.xml', [ 'widget', 'widgetname' ], { fn.Xml: [ 'build/app/config.xml', [ 'widget', 'name' ], cwd: env.PLATFORM_ROOT ] }, cwd: env.PLATFORM_ROOT ]
 
     - upload.Ftp: {
-      PATH_IN: { fn.Glob: 'tizen-client/build/app/*.wgt' },
-      PATH_OUT: { fn.Join: [ 'tizen/${USER}/', { fn.Xml: [ 'tizen-client/build/app/config.xml', [ 'widget', 'name' ] ] }, '.wgt'] },
+      PATH_IN: { fn.Glob: [ 'build/app/*.wgt', cwd: env.PLATFORM_ROOT ] },
+      PATH_OUT: { fn.Join: [ 'tizen/${USER}/', { fn.Xml: [ 'build/app/config.xml', [ 'widget', 'name' ], cwd: env.PLATFORM_ROOT ] }, '.wgt'] },
       HOST: env.FTP_HOST,
       USER: env.FTP_USER,
       PASSWORD: env.FTP_PASSWORD,
@@ -49,7 +58,7 @@ deploy:
     }
 
     - upload.Ftp: {
-      PATH_IN: 'tizen-client/build/sssp_config.xml',
+      PATH_IN: { fn.Join: [ env.PLATFORM_ROOT, 'build/sssp_config.xml', separator: '/' ] },
       PATH_OUT: 'tizen/${USER}/sssp_config.xml',
       HOST: env.FTP_HOST,
       USER: env.FTP_USER,
@@ -77,9 +86,12 @@ deploy:
     - shell.Echo: [ '\nStep 4, after update check SERVER_URL:' ]
     - shell.Echo: [ 'fetch(\"src/sp_app.js\").then(function(a){return a.text();}).then(function(a){console.log(a.split(\"TizenBuildConfig.BASE_SERVER_URL = \\\"\")[1].split(\"\\\";\")[0]);})' ]
 
+  required:
+    - APP_VERSION
+
 clean:
   autocomplete: false
   desc: 'Tizen clean'
   steps:
-    - shell.Clean: 'tizen-client/build'
+    - shell.Clean: [ 'build', cwd: env.PLATFORM_ROOT ]
 

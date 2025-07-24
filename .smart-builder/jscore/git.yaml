@@ -34,6 +34,10 @@ up_path_version:
     NEXT_VERSION: { fn.UpVersion: [ { fn.Json: [ 'package.json', [ 'version' ], cwd: env.PLATFORM_ROOT ] }, separator: '.', section: '2' ] }
     NEXT_V_VERSION: { fn.Join: [ 'v', env.NEXT_VERSION, separator: '' ] }
     PREFIX_BRANCH: { fn.Split: [ { fn.git.BranchName: [ cwd: env.PLATFORM_ROOT ] }, separator: '/', section: '0' ] }
+
   required:
+    - PLATFORM_ROOT
     - CURRENT_VERSION
     - NEXT_VERSION
+    - NEXT_V_VERSION
+    - PREFIX_BRANCH
