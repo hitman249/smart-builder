@@ -38,6 +38,8 @@ export default class Step {
     const value: any = hydrateData[rule];
 
     switch (rule) {
+      case 'switch':
+        return this.fnSwitch(value);
       case 'load.Env':
         return this.loadEnv(value);
       case 'edit.Json':
@@ -123,6 +125,33 @@ export default class Step {
         return this.downloadImage(value, true);
       case 'upload.Ftp':
         return this.uploadFtp(value);
+    }
+  }
+
+  private async fnSwitch(data: any): Promise<void> {
+    const options: any = this.app.getOptions(data);
+    const input: any = options.data.value;
+    let item: any = (options.data.cases as any[] || []).find((item: any): boolean => input === item.case);
+
+    if (!item) {
+      item = (options.data.cases as any[] || []).find((item: any): boolean => 'default' === item.case);
+    }
+
+    if (!item) {
+      return;
+    }
+
+    if (this.debug) {
+      console.log('Step.fnSwitch');
+      console.dir(item, {depth: 10});
+      return;
+    }
+
+    if (item.steps) {
+      for (const value of item.steps) {
+        const step: Step = this.app.createStep(value);
+        await step.run();
+      }
     }
   }
 

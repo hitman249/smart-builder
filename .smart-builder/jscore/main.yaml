@@ -20,7 +20,7 @@ debug:
     - APP_SERVER_URL
 
 release:
-  desc: 'Tizen compile release package'
+  desc: 'JS Core compile release'
   steps:
     - ':branch'
     - shell.Gulp: [ 'build', cwd: env.PLATFORM_ROOT ]
@@ -32,7 +32,7 @@ release:
 
 clean:
   autocomplete: false
-  desc: 'Tizen clean'
+  desc: 'JS Core clean'
   steps:
     - shell.Clean: { fn.Join: [ env.PLATFORM_ROOT, 'build', separator: '/' ] }
 
