@@ -230,7 +230,7 @@ export default class FileSystem {
   }
 
   public async saveJsonFile(path: string, data: Object): Promise<void> {
-    return this.saveFile(path, Utils.jsonEncode(data));
+    return this.saveFile(path, await this.appendLastEmptyLine(path, Utils.jsonEncode(data)));
   }
 
   public async readXmlFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
@@ -238,7 +238,7 @@ export default class FileSystem {
   }
 
   public async saveXmlFile(path: string, data: Object): Promise<void> {
-    return this.saveFile(path, (new xml2js.Builder()).buildObject(data));
+    return this.saveFile(path, await this.appendLastEmptyLine(path, (new xml2js.Builder()).buildObject(data)));
   }
 
   public async readYamlFile(pathOrUrl: string, autoEncoding: boolean = false): Promise<any> {
@@ -260,11 +260,27 @@ export default class FileSystem {
   }
 
   public async saveIniFile(path: string, data: Object): Promise<any> {
-    return this.saveFile(path, ini.stringify(data, {section : 'section'}));
+    return this.saveFile(path, await this.appendLastEmptyLine(path, ini.stringify(data, {section : 'section'})));
   }
 
   public async readGitConfigFile(path: string, autoEncoding: boolean = false): Promise<any> {
     return await gitconfig({path});
+  }
+
+  private async appendLastEmptyLine(path: string, content: string): Promise<string> {
+    const text: string = (await this.exists(path)) ? (await this.readFile(path)) : '';
+    const textArray: string[] = text.split('\n');
+    const isLastEmptyLine: boolean = textArray.length > 0 ? '' === textArray[textArray.length - 1] : false;
+
+    if (isLastEmptyLine) {
+      const contentArray: string[] = content.split('\n');
+
+      if (contentArray.length > 0 && '' !== contentArray[contentArray.length - 1]) {
+        return content + '\n';
+      }
+    }
+
+    return content;
   }
 
   public async fileGetContents(filepath: string, autoEncoding: boolean = false): Promise<string> {
