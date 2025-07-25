@@ -38,6 +38,8 @@ Options:
 1) Go to the `smart-builder` directory and execute
 
 ```shell
+git clone https://github.com/hitman249/smart-builder.git
+cd smart-builder
 npm i
 npm run build
 npm i -g ./
@@ -119,16 +121,16 @@ example:
   hint:
     EXTERNAL_FIELD: 'FTP address'
     SB_UPLOAD_TYPE: 'Type file'
+  env:
+    SB_UPLOAD_TYPE: 'android'
+  required:
+    - EXTERNAL_FIELD
   steps:
     - 'middleware:load_env'
     - ':banner'
     - shell.Clean: 'dist'
     - shell.Npm: [ 'run', 'build' ]
     - shell.Copy: [ { fn.Glob: 'android/app/build/${PLATFORM}/*.apk' }, 'dist/app.apk' ]
-  env:
-    SB_UPLOAD_TYPE: 'android'
-  required:
-    - EXTERNAL_FIELD
 ```
 
 List of all operators with examples of syntax.
@@ -150,7 +152,6 @@ steps:
   - ':load_env'
   - 'platform:load_env'
   - load.Env: 'https://mw.com/api/build-env'
-  - load.Env: '/dist/.env-prod'
   - load.Env: '.env-prod'
   - edit.Json: [ 'app.json', [ 'name' ], 'My Company' ]
   - edit.Xml: [ 'config.xml', [ 'widget', 'tizen:application', '0', '$', 'id' ], 'my.app.com' ]
