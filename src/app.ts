@@ -42,6 +42,26 @@ export class App {
     this.ENV = new Env(this.rootPath, this.CONSOLE.getField('envFile', '.env'));
     await this.ENV.init();
 
+    const appVersion: string = await this.getVersion();
+    const configsInfo: any = this.FINDER.getRootDoc('smart-builder.yaml');
+    const minVersion: string = configsInfo?.[0]?.doc?.min_version;
+
+    if (minVersion) {
+      if (!Utils.versionCompare(appVersion, minVersion, '>=')) {
+        console.log('');
+        console.log('It is required to update Smart-Builder.');
+        console.log('');
+        console.log(`Smart-Builder version:    ${appVersion}`);
+        console.log(`Minimum required version: ${minVersion}`);
+        console.log('');
+        console.log('Launch a command to upgrade:');
+        console.log('');
+        console.log('smart-builder -u');
+        console.log('');
+        return;
+      }
+    }
+
     const target: string = this.CONSOLE.getTarget();
     const update: boolean = this.CONSOLE.getField('update', false);
     const version: boolean = this.CONSOLE.getField('version', false);
@@ -55,7 +75,7 @@ export class App {
     }
 
     if (version) {
-      console.log('version:', await this.getVersion());
+      console.log('version:', appVersion);
       return;
     }
 

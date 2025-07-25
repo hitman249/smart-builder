@@ -5,6 +5,7 @@ import fs from 'fs';
 import iconv from 'iconv-lite';
 import type {ReadStream} from 'fs';
 import {Progress} from "../fs/file-system";
+import version_compare from 'locutus/php/info/version_compare';
 
 type CounterType = {count: number, codepage: string, str: string};
 
@@ -347,5 +348,10 @@ export default class Utils {
 
   public static first(data: any): any {
     return Array.isArray(data) ? data[0] : data;
+  }
+
+  public static versionCompare(v1: string, v2: string, operator: '<' | '>' | '<=' | '>=' | '='): boolean {
+    // version_compare('8.2.50', '8.2.52', '<') // true
+    return version_compare(v1, v2, operator);
   }
 }

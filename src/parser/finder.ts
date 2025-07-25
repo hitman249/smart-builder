@@ -17,6 +17,10 @@ export default class Finder {
     await this.load();
   }
 
+  public getRootDoc(platform: string): any {
+    return this.docs[platform];
+  }
+
   public getDocsByTarget(target: string = 'main'): Doc['doc'] {
     const [platform = 'main', task = 'default']: string[] = target.split(':');
 
