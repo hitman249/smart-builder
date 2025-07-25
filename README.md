@@ -38,8 +38,9 @@ Options:
 1) Go to the `smart-builder` directory and execute
 
 ```shell
-npm i -g ./
+npm i
 npm run build
+npm i -g ./
 ```
 
 2) After the step executed, you will have a console command
