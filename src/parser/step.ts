@@ -40,6 +40,8 @@ export default class Step {
     switch (rule) {
       case 'switch':
         return this.fnSwitch(value);
+      case 'shell.Exit':
+        return this.fnExit();
       case 'load.Env':
         return this.loadEnv(value);
       case 'edit.Json':
@@ -153,6 +155,10 @@ export default class Step {
         await step.run();
       }
     }
+  }
+
+  private async fnExit(): Promise<void> {
+    process.exit(0);
   }
 
   private async loadEnv(data: any): Promise<void> {

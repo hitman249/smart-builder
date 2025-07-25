@@ -135,6 +135,7 @@ List of all operators with examples of syntax.
 
 ```yaml
 steps:
+  - shell.Exit: ''
   - switch:
     value: env.PREFIX_BRANCH
     cases:
