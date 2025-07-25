@@ -34,7 +34,7 @@ gco_core:
     - shell.Git: [ 'fetch', '--all', cwd: env.JS_CORE_ROOT ]
     - shell.git.SetSubmoduleBranch: [ { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.JS_CORE_ROOT ] }, 'jscore', cwd: env.PLATFORM_ROOT ]
     - shell.git.PullSubmodules: [ cwd: env.PLATFORM_ROOT ]
-#    - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
+    #    - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
     - shell.Npm: [ 'i', cwd: env.JS_CORE_ROOT ]
     - shell.Echo: [ '' ]
     - ':branch'
