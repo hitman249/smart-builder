@@ -22,9 +22,9 @@ gco:
     - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: env.PLATFORM_ROOT ]
     - shell.Git: [ 'checkout', '-f', 'assets/config/config_socket_connection.json', cwd: env.PLATFORM_ROOT ]
     - shell.Git: [ 'checkout', { fn.git.FindBranch: [ env.SB_INPUT, cwd: env.PLATFORM_ROOT ] }, cwd: env.PLATFORM_ROOT ]
+    - shell.git.Pull: [ cwd: env.PLATFORM_ROOT ]
     - shell.git.ResetSubmodules: [ cwd: env.PLATFORM_ROOT ]
     - ':i'
-    - ':branch'
   required:
     - SB_INPUT
 

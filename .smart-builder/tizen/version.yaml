@@ -27,6 +27,7 @@ up_path_version:
     - edit.Json: [ 'package.json', [ 'coreLibraryVersion' ], { fn.Json: [ 'package.json', [ 'version' ], cwd: env.JS_CORE_ROOT ] }, cwd: env.PLATFORM_ROOT ]
     - edit.Json: [ 'package-lock.json', [ 'version' ], env.NEXT_VERSION, cwd: env.PLATFORM_ROOT ]
     - shell.Git: [ 'add', 'package.json', cwd: env.PLATFORM_ROOT ]
+    - shell.Git: [ 'add', 'package-lock.json', cwd: env.PLATFORM_ROOT ]
     - shell.Git: [ 'commit', '-m', { fn.Join: [ 'Bumped version to', env.NEXT_VERSION, separator: ' ' ] }, cwd: env.PLATFORM_ROOT ]
     - shell.Git:
         - 'push'
