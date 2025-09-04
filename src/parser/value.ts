@@ -260,6 +260,10 @@ export default class Value {
   }
 
   private async fnFsSize(data: any): Promise<number> {
+    if (!data) {
+      return 0;
+    }
+
     const options: any = this.app.getOptions(data);
     const path: string = this.app.getFullPath(Utils.first(options.data), options.cwd);
 

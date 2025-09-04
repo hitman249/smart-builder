@@ -21,6 +21,7 @@ up_path_version:
               - shell.Echo: [ '\nSpecify \"-i yes\" to execute this command.\n' ]
               - shell.Exit: ''
 
+    - shell.Git: [ 'checkout', '-f', 'package-lock.json', cwd: env.PLATFORM_ROOT ]
     - shell.git.Pull: [ cwd: env.PLATFORM_ROOT ]
     - shell.Git: [ 'branch', '-m', { fn.Join: [ env.PREFIX_BRANCH, '/', env.NEXT_V_VERSION, separator: '' ] }, cwd: env.PLATFORM_ROOT ]
     - edit.Json: [ 'package.json', [ 'version' ], env.NEXT_VERSION, cwd: env.PLATFORM_ROOT ]

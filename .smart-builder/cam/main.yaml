@@ -30,3 +30,28 @@
     - shell.Sh: [ 'anydesk', env.CAM3_ID ]
   required:
     - CAM3_ID
+
+4:
+  desc: 'View cam4'
+  steps:
+    - shell.Sh: [ 'rudesktop', '--connect', env.CAM4_ID ]
+  required:
+    - CAM4_ID
+    - CAM4_PASSWORD
+
+5:
+  desc: 'View cam5'
+  steps:
+    - shell.Sh: [ 'mpv', 'rtsp://${CAM5_USERNAME}:${CAM5_PASSWORD}@${CAM5_HOST}/Streaming/Channels/102' ]
+  required:
+    - CAM5_USERNAME
+    - CAM5_PASSWORD
+    - CAM5_HOST
+5-fhd:
+  desc: 'View cam5'
+  steps:
+    - shell.Sh: [ 'mpv', 'rtsp://${CAM5_USERNAME}:${CAM5_PASSWORD}@${CAM5_HOST}/Streaming/Channels/101' ]
+  required:
+    - CAM5_USERNAME
+    - CAM5_PASSWORD
+    - CAM5_HOST
