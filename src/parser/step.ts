@@ -8,6 +8,11 @@ import sharp from "sharp";
 import type {ResizeOptions, Sharp} from "sharp";
 import {Client} from "basic-ftp";
 
+type RuleType = {
+  rule: string,
+  value: any,
+}
+
 export default class Step {
   private readonly app: App;
   private readonly data: any;
@@ -25,6 +30,19 @@ export default class Step {
 
   public get debug(): boolean {
     return this.app.isDebug();
+  }
+
+  public async getRule(): Promise<RuleType> {
+    const hydrateData: any = await this.app.hydrateData(this.data);
+
+    if (_.isString(hydrateData)) {
+      return;
+    }
+
+    const rule: string = Object.keys(hydrateData)[0];
+    const value: any = hydrateData[rule];
+
+    return {rule, value};
   }
 
   public async run(): Promise<void> {

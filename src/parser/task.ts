@@ -1,4 +1,5 @@
-import {App} from "../app";
+import process from "process";
+import type {App} from "../app";
 import type Step from "./step";
 
 export default class Task {
@@ -27,7 +28,14 @@ export default class Task {
     if (this.doc.steps) {
       for (const value of this.doc.steps) {
         const step: Step = this.app.createStep(value);
-        await step.run();
+
+        try {
+          await step.run();
+        } catch (e) {
+          console.log(`Step returned the error code:`);
+          console.dir(await step.getRule(), {depth: 3});
+          process.exit(1);
+        }
       }
     }
   }

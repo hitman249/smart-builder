@@ -58,7 +58,13 @@ export default class WatchProcess extends EventListener {
     }
 
     watch.on('close', this.resolve);
-    watch.on('exit', this.resolve);
+    watch.on('exit', (code: number, signal: NodeJS.Signals) => {
+      if (code) {
+        return this.reject(undefined);
+      }
+
+      return this.resolve(undefined);
+    });
     watch.on('error', this.reject);
   }
 
