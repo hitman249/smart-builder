@@ -70,6 +70,9 @@ complete -F _smart_builder_complete smart-builder
 
 ## CLI example
 
+Default `.sb.env` or `.env`  
+Loading first file in this order.
+
 ```shell
 smart-builder -e .env webos:debug
 smart-builder -e .env-prod webos:release

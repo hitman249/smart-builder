@@ -1,3 +1,4 @@
+import path from "path";
 import process from 'process';
 import dotenv from 'dotenv';
 import FileSystem from '../fs/file-system';
@@ -7,17 +8,23 @@ interface Dict<T> { [key: string]: T | undefined; }
 export interface ProcessEnv extends Dict<string> {}
 
 export class Env {
-  private readonly path: string;
+  private readonly paths: string[];
 
-  constructor(rootPath: string, file: string = '.env') {
-    this.path = `${rootPath}/${file}`;
+  constructor(rootPath: string, file: string = '.sb.env') {
+    this.paths = [
+      path.join(rootPath, file),
+      path.join(rootPath, '.env'),
+    ];
   }
 
   public async init(): Promise<void> {
     const fs: FileSystem = new FileSystem();
 
-    if (await fs.exists(this.path)) {
-      dotenv.config({path: this.path, override: true});
+    for (const file of this.paths) {
+      if (await fs.exists(file)) {
+        dotenv.config({path: file, override: true});
+        break;
+      }
     }
   }
 

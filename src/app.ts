@@ -39,7 +39,7 @@ export class App {
     this.CONSOLE = new Console();
     this.FILE_SYSTEM = new FileSystem();
     this.NETWORK = new Network();
-    this.ENV = new Env(this.rootPath, this.CONSOLE.getField('envFile', '.env'));
+    this.ENV = new Env(this.rootPath, this.CONSOLE.getField('envFile', '.sb.env'));
     await this.ENV.init();
 
     const appVersion: string = await this.getVersion();
